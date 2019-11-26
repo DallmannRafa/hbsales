@@ -3,7 +3,7 @@ package br.com.hbsis.fornecedor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "seg_Fornecedores")
+@Table(name = "seg_fornecedores")
 public class Fornecedor {
 
     @Id

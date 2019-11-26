@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Classe resposável por receber as requisições externas ao sistema
- */
 @RestController
 @RequestMapping("/fornecedores")
 public class FornecedorRest {
@@ -22,7 +19,7 @@ public class FornecedorRest {
 
     @PostMapping
     public FornecedorDTO save(@RequestBody FornecedorDTO fornecedorDTO) {
-        LOGGER.info("Recebendo solicitação de persistência de usuário...");
+        LOGGER.info("Recebendo solicitação de persistência de fornecedor...");
         LOGGER.debug("Payaload: {}", fornecedorDTO);
 
         return this.fornecedorService.save(fornecedorDTO);
@@ -38,7 +35,7 @@ public class FornecedorRest {
 
     @PutMapping("/{id}")
     public FornecedorDTO udpate(@PathVariable("id") Long id, @RequestBody FornecedorDTO fornecedorDTO) {
-        LOGGER.info("Recebendo Update para Usuário de ID: {}", id);
+        LOGGER.info("Recebendo Update para Fornecedor de ID: {}", id);
         LOGGER.debug("Payload: {}", fornecedorDTO);
 
         return this.fornecedorService.update(fornecedorDTO, id);
@@ -46,7 +43,7 @@ public class FornecedorRest {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
-        LOGGER.info("Recebendo Delete para Usuário de ID: {}", id);
+        LOGGER.info("Recebendo Delete para Fornecedor de ID: {}", id);
 
         this.fornecedorService.delete(id);
     }

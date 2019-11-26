@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Classe responsável pelo processamento da regra de negócio
- */
 @Service
 public class FornecedorService {
 
