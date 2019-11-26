@@ -21,16 +21,6 @@ public class Fornecedor {
     private String telefone;
     @Column(name = "email", nullable = false, length = 100 )
     private String email;
-    @Column(name = "uuid", unique = true, updatable = false, length = 36)
-    private String uuid;
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
 
     public Long getId() {
         return id;
@@ -98,7 +88,6 @@ public class Fornecedor {
                 ", endereco='" + endereco + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", email='" + email + '\'' +
-                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }

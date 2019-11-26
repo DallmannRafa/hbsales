@@ -1,5 +1,6 @@
 package br.com.hbsis.categoriaProdutos;
 
+import br.com.hbsis.fornecedor.FornecedorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ public class CategoriaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaRest.class);
 
     private final CategoriaService categoriaService;
+    private final FornecedorService fornecedorService;
 
     @Autowired
-    public CategoriaRest(CategoriaService categoriaService) {
+    public CategoriaRest(CategoriaService categoriaService, FornecedorService fornecedorService) {
         this.categoriaService = categoriaService;
+        this.fornecedorService = fornecedorService;
     }
 
     @PostMapping
@@ -24,6 +27,7 @@ public class CategoriaRest {
         LOGGER.info("Recebendo solicitação de persistência de categoria...");
         LOGGER.debug("Payaload: {}", categoriaDTO);
 
+        Long idFornecedor = categoriaDTO.getFornecedorDTO().getId();
         return this.categoriaService.save(categoriaDTO);
     }
 

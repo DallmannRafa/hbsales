@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class FornecedorService {
@@ -33,7 +32,6 @@ public class FornecedorService {
         fornecedor.setEndereco(fornecedorDTO.getEndereco());
         fornecedor.setTelefone(fornecedorDTO.getTelefone());
         fornecedor.setEmail(fornecedorDTO.getEmail());
-        fornecedor.setUuid(UUID.randomUUID().toString());
 
         fornecedor = this.iFornecedorRepository.save(fornecedor);
 

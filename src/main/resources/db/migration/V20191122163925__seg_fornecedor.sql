@@ -7,5 +7,5 @@ create table seg_fornecedores
     endereco VARCHAR (100)       NOT NULL,
     telefone VARCHAR (12)        NOT NULL,
     email VARCHAR (100)          NOT NULL,
-    uuid  VARCHAR(36)            NOT NULL
+    PRIMARY KEY (id)
 );
