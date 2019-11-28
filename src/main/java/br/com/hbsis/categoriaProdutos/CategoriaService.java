@@ -1,8 +1,6 @@
 package br.com.hbsis.categoriaProdutos;
 
-import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +29,7 @@ public class CategoriaService {
         LOGGER.debug("Fornecedor: {}", categoriaDTO.getFornecedor().getNomeFantasia());
 
         Categoria categoria = new Categoria(
-                 categoriaDTO.getCodCategoria(),
+                categoriaDTO.getCodCategoria(),
                 categoriaDTO.getNomeCategoria(),
                 categoriaDTO.getFornecedor()
         );
@@ -74,7 +72,6 @@ public class CategoriaService {
 
             return CategoriaDTO.of(categoriaExistente);
         }
-
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }

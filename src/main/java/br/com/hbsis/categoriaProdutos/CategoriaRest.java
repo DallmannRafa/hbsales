@@ -1,6 +1,5 @@
 package br.com.hbsis.categoriaProdutos;
 
-import br.com.hbsis.fornecedor.FornecedorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,8 @@ public class CategoriaRest {
 
     private final CategoriaService categoriaService;
 
-
     @Autowired
-    public CategoriaRest(CategoriaService categoriaService, FornecedorService fornecedorService) {
+    public CategoriaRest(CategoriaService categoriaService) {
         this.categoriaService = categoriaService;
 
     }
