@@ -1,29 +1,35 @@
 package br.com.hbsis.categoriaProdutos;
 
-import br.com.hbsis.fornecedor.FornecedorDTO;
+import br.com.hbsis.fornecedor.Fornecedor;
 
 public class CategoriaDTO {
     private long id;
     private String codCategoria;
     private String nomeCategoria;
-    private FornecedorDTO fornecedorDTO;
+    private Fornecedor fornecedor;
 
     public CategoriaDTO() {
     }
 
-    public CategoriaDTO(long id, String codCategoria, String nomeCategoria, FornecedorDTO fornecedorDTO) {
+    public CategoriaDTO(String codCategoria, String nomeCategoria, Fornecedor fornecedor) {
+        this.codCategoria = codCategoria;
+        this.nomeCategoria = nomeCategoria;
+        this.fornecedor = fornecedor;
+    }
+
+    public CategoriaDTO(long id, String codCategoria, String nomeCategoria, Fornecedor fornecedor) {
         this.id = id;
         this.codCategoria = codCategoria;
         this.nomeCategoria = nomeCategoria;
-        this.fornecedorDTO = fornecedorDTO;
+        this.fornecedor = fornecedor;
     }
 
-    public static CategoriaDTO of(Categoria categoria, FornecedorDTO fornecedorDTO) {
+    public static CategoriaDTO of(Categoria categoria) {
         return new CategoriaDTO(
-            categoria.getId(),
-            categoria.getCodigoCategoria(),
-            categoria.getNomeCategoria(),
-            fornecedorDTO
+                categoria.getId(),
+                categoria.getCodigoCategoria(),
+                categoria.getNomeCategoria(),
+                categoria.getFornecedor()
         );
     }
 
@@ -39,12 +45,12 @@ public class CategoriaDTO {
         this.codCategoria = codCategoria;
     }
 
-    public FornecedorDTO getFornecedorDTO() {
-        return fornecedorDTO;
+    public Fornecedor getFornecedor() {
+        return fornecedor;
     }
 
-    public void setFornecedorDTO(FornecedorDTO fornecedorDTO) {
-        this.fornecedorDTO = fornecedorDTO;
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
     }
 
     public String getNomeCategoria() {

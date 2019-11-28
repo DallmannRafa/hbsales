@@ -1,5 +1,7 @@
 package br.com.hbsis.categoriaProdutos;
 
+import br.com.hbsis.fornecedor.Fornecedor;
+import br.com.hbsis.fornecedor.FornecedorService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,52 +15,35 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
 
     private final ICategoriaRepository iCategoriaRepository;
+    private final FornecedorService fornecedorService;
 
-    public CategoriaService(ICategoriaRepository iCategoriaRepository) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
         this.iCategoriaRepository = iCategoriaRepository;
+        this.fornecedorService = fornecedorService;
     }
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
 
-        this.validate(categoriaDTO);
+        categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
 
         LOGGER.info("Salvando categoria");
         LOGGER.debug("Categoria: {}", categoriaDTO);
+        LOGGER.debug("Fornecedor: {}", categoriaDTO.getFornecedor().getNomeFantasia());
 
-        Categoria categoria = new Categoria();
-        categoria.setCodigoCategoria(categoriaDTO.getCodCategoria());
-        categoria.setFornecedorCategoria(categoriaDTO.getFornecedorCategoria());
-        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-
+        Categoria categoria = new Categoria(
+                 categoriaDTO.getCodCategoria(),
+                categoriaDTO.getNomeCategoria(),
+                categoriaDTO.getFornecedor()
+        );
 
         categoria = this.iCategoriaRepository.save(categoria);
 
-        return CategoriaDTO.of(categoria);
+        return categoriaDTO.of(categoria);
+
     }
 
     public List<Categoria> findAll() {
         return iCategoriaRepository.findAll();
-    }
-
-    private void validate(CategoriaDTO categoriaDTO) {
-        LOGGER.info("Validando Categoria");
-
-        if (categoriaDTO == null) {
-            throw new IllegalArgumentException("FornecedorDTO não deve ser nulo");
-        }
-
-        if (StringUtils.isEmpty(categoriaDTO.getCodCategoria())) {
-            throw new IllegalArgumentException("Codigo da categoria não deve ser nula/vazia");
-        }
-
-        if (StringUtils.isEmpty(categoriaDTO.getFornecedorCategoria())) {
-            throw new IllegalArgumentException("Fornecedor da categoria não deve ser nula/vazia");
-        }
-
-        if (StringUtils.isEmpty(categoriaDTO.getNomeCategoria())) {
-            throw new IllegalArgumentException("Nome da categoria não deve ser nula/vazia");
-        }
-
     }
 
     public CategoriaDTO findById(Long id) {
@@ -81,7 +66,7 @@ public class CategoriaService {
             LOGGER.debug("Payload: {}", categoriaDTO);
             LOGGER.debug("Categoria Existente: {}", categoriaExistente);
 
-            categoriaExistente.setFornecedorCategoria(categoriaDTO.getFornecedorCategoria());
+            categoriaExistente.setFornecedor(categoriaDTO.getFornecedor());
             categoriaExistente.setCodigoCategoria(categoriaDTO.getCodCategoria());
             categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
 

@@ -1,6 +1,5 @@
 package br.com.hbsis.categoriaProdutos;
 
-
 import br.com.hbsis.fornecedor.Fornecedor;
 
 import javax.persistence.*;
@@ -18,7 +17,24 @@ public class Categoria {
     private String nomeCategoria;
 
     @ManyToOne
+    @JoinColumn(name = "id_fornecedor", referencedColumnName = "id")
     private Fornecedor fornecedor;
+
+    public Categoria() {
+    }
+
+    public Categoria(Long id, String codigoCategoria, String nomeCategoria, Fornecedor fornecedor) {
+        this.id = id;
+        this.codigoCategoria = codigoCategoria;
+        this.nomeCategoria = nomeCategoria;
+        this.fornecedor = fornecedor;
+    }
+
+    public Categoria(String codigoCategoria, String nomeCategoria, Fornecedor fornecedor) {
+        this.codigoCategoria = codigoCategoria;
+        this.nomeCategoria = nomeCategoria;
+        this.fornecedor = fornecedor;
+    }
 
     public Fornecedor getFornecedor() {
         return fornecedor;
@@ -54,6 +70,7 @@ public class Categoria {
                 "id=" + id +
                 ", codigoCategoria='" + codigoCategoria + '\'' +
                 ", nomeCategoria='" + nomeCategoria + '\'' +
+                ", fornecedor=" + fornecedor +
                 '}';
     }
 }

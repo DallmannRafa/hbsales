@@ -14,12 +14,12 @@ public class CategoriaRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaRest.class);
 
     private final CategoriaService categoriaService;
-    private final FornecedorService fornecedorService;
+
 
     @Autowired
     public CategoriaRest(CategoriaService categoriaService, FornecedorService fornecedorService) {
         this.categoriaService = categoriaService;
-        this.fornecedorService = fornecedorService;
+
     }
 
     @PostMapping
@@ -27,7 +27,6 @@ public class CategoriaRest {
         LOGGER.info("Recebendo solicitação de persistência de categoria...");
         LOGGER.debug("Payaload: {}", categoriaDTO);
 
-        Long idFornecedor = categoriaDTO.getFornecedorDTO().getId();
         return this.categoriaService.save(categoriaDTO);
     }
 

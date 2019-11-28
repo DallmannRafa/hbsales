@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+
 @Service
 public class FornecedorService {
 
@@ -82,6 +83,7 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);
 
@@ -112,5 +114,15 @@ public class FornecedorService {
         LOGGER.info("Executando delete para FORNECEDOR de ID: [{}]", id);
 
         this.iFornecedorRepository.deleteById(id);
+    }
+
+    public Fornecedor findFornecedorById(Long id) {
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 }
