@@ -4,9 +4,12 @@ import br.com.hbsis.fornecedor.Fornecedor;
 
 public class CategoriaDTO {
     private long id;
+
     private String codCategoria;
     private String nomeCategoria;
     private Fornecedor fornecedor;
+
+
 
     public CategoriaDTO() {
     }
@@ -59,5 +62,15 @@ public class CategoriaDTO {
 
     public void setNomeCategoria(String nomeCategoria) {
         this.nomeCategoria = nomeCategoria;
+    }
+
+    @Override
+    public String toString() {
+        return "CategoriaDTO{" +
+                "id=" + id +
+                ", codCategoria='" + codCategoria + '\'' +
+                ", nomeCategoria='" + nomeCategoria + '\'' +
+                ", fornecedor=" + fornecedor +
+                '}';
     }
 }

@@ -115,6 +115,10 @@ public class FornecedorService {
         this.iFornecedorRepository.deleteById(id);
     }
 
+    public String stringFy(Long id) {
+        return this.iFornecedorRepository.findById(id).toString();
+    }
+
     public Fornecedor findFornecedorById(Long id) {
         Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findById(id);
 

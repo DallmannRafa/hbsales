@@ -20,6 +20,8 @@ public class CategoriaService {
         this.fornecedorService = fornecedorService;
     }
 
+
+
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
 
         categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
@@ -36,12 +38,14 @@ public class CategoriaService {
 
         categoria = this.iCategoriaRepository.save(categoria);
 
-        return categoriaDTO.of(categoria);
+        return CategoriaDTO.of(categoria);
 
     }
 
     public List<Categoria> findAll() {
+
         return iCategoriaRepository.findAll();
+
     }
 
     public CategoriaDTO findById(Long id) {
@@ -49,6 +53,7 @@ public class CategoriaService {
 
         if (categoriaOptional.isPresent()) {
             return CategoriaDTO.of(categoriaOptional.get());
+
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
@@ -81,4 +86,52 @@ public class CategoriaService {
 
         this.iCategoriaRepository.deleteById(id);
     }
+
+    public String[][] stringFyToCSVbyId (Long id) {
+        String[] header = new String[] {"id", "codCategoria", "nomeCategoria", "fornecedor"};
+        String[] atributos = new String[4];
+        String[][] concat = new String[2][];
+
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaOptional.isPresent()) {
+            atributos[0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
+            atributos[1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
+            atributos[2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
+            atributos[3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
+
+            concat[0] = header;
+            concat[1] = atributos;
+
+            return concat;
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+
+    }
+
+    public String[][] stringFyToCSVAll () {
+        List<Categoria> categorias= this.iCategoriaRepository.findAll();
+        String[] header = new String[] {"id", "codCategoria", "nomeCategoria", "fornecedor"};
+        String[][] atributos = new String[categorias.size() + 1][4];
+        int contador = 1;
+
+        atributos[0] = header;
+
+        for (Categoria cat: categorias) {
+            Optional<Categoria> categoriaOptional = Optional.ofNullable(cat);
+
+            if (categoriaOptional.isPresent()) {
+                atributos[contador] [0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
+                atributos[contador] [1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
+                atributos[contador] [2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
+                atributos[contador] [3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
+            }
+
+            contador++;
+        }
+
+        return atributos;
+    }
+
 }
