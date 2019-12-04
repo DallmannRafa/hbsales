@@ -42,14 +42,9 @@ public class ArquivoRest {
         this.arquivoService.oneToCSV(response, id);
     }
 
-    @PostMapping(value = "/upload", consumes = "text/csv")
-    public void uploadSimple(@RequestBody InputStream body) throws IOException {
-        repository.saveAll(ArquivoService.read(Categoria.class, body));
-    }
-
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public void uploadMultipart(@RequestParam("file") MultipartFile file) throws IOException {
-        repository.saveAll(ArquivoService.read(Categoria.class, file.getInputStream()));
+    public void uploadMultipart(@RequestParam("file") MultipartFile file) {
+        this.arquivoService.readCSV(file);
     }
 
 }

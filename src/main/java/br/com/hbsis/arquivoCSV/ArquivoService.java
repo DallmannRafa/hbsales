@@ -2,34 +2,30 @@ package br.com.hbsis.arquivoCSV;
 
 import br.com.hbsis.categoriaProdutos.Categoria;
 import br.com.hbsis.categoriaProdutos.CategoriaService;
+import br.com.hbsis.categoriaProdutos.ICategoriaRepository;
+import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.opencsv.CSVWriter;
 import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.io.*;
+import java.util.Optional;
 
 @Service
 public class ArquivoService {
 
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
+    private final ICategoriaRepository iCategoriaRepository;
 
-    public ArquivoService(FornecedorService fornecedorService, CategoriaService categoriaService) {
+    public ArquivoService(FornecedorService fornecedorService, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
+        this.iCategoriaRepository = iCategoriaRepository;
     }
 
     public void manyToCSV (HttpServletResponse response) throws IOException {
@@ -74,12 +70,38 @@ public class ArquivoService {
             writer.writeNext(a);
 
         }
+
     }
 
-    private static final CsvMapper mapper = new CsvMapper();
-    public static <T> List<T> read(Class<T> clazz, InputStream stream) throws IOException {
-        CsvSchema schema = mapper.schemaFor(clazz).withHeader().withColumnReordering(true);
-        ObjectReader reader = mapper.readerFor(clazz).with(schema);
-        return reader.<T>readValues(stream).readAll();
+    public void readCSV(MultipartFile file) {
+        String linhaArquivo;
+        String quebraLinha = ";";
+
+        try(BufferedReader csvReader = new BufferedReader (new InputStreamReader(file.getInputStream()))){
+
+            while ((linhaArquivo = csvReader.readLine()) != null) {
+                String[] valores = linhaArquivo.split(quebraLinha);
+                Optional<Fornecedor> fornecedorOptional = fornecedorService.findByIdOptional(Long.parseLong(valores[3]));
+
+                if (fornecedorOptional.isPresent()) {
+                    Categoria categoria = new Categoria();
+                    categoria.setCodigoCategoria(valores[1]);
+                    categoria.setNomeCategoria(valores[2]);
+                    categoria.setFornecedor(fornecedorOptional.get());
+
+                    this.iCategoriaRepository.save(categoria);
+
+                } else {
+                    throw new IllegalArgumentException(String.format("Id %s não existe", fornecedorOptional));
+                }
+
+            }
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
+
 }
