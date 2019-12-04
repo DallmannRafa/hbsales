@@ -59,6 +59,16 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Categoria findCategoriaById(Long id) {
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaOptional.isPresent()) {
+            return categoriaOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
         Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
 
