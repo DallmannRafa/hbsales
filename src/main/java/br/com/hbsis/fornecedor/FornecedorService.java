@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,16 +27,32 @@ public class FornecedorService {
         LOGGER.debug("Fornecedor: {}", fornecedorDTO);
 
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setRazaoSocial(fornecedorDTO.getRazaoSocial());
-        fornecedor.setCnpj(fornecedorDTO.getCnpj());
-        fornecedor.setNomeFantasia(fornecedorDTO.getNomeFantasia());
-        fornecedor.setEndereco(fornecedorDTO.getEndereco());
-        fornecedor.setTelefone(fornecedorDTO.getTelefone());
-        fornecedor.setEmail(fornecedorDTO.getEmail());
+
+        String CNPJ = fornecedorDTO.getCnpj();
+        CNPJ = CNPJ.replaceAll("[^0-9]", "");
+        String Telefone = fornecedorDTO.getTelefone();
+        Telefone = Telefone.replaceAll("[^0-9]", "");
+
+        if (CNPJ.length() != 14 || fornecedorDTO.getTelefone().length() != 13) {
+            fornecedor.setRazaoSocial(fornecedorDTO.getRazaoSocial());
+            fornecedor.setCnpj(CNPJ);
+            fornecedor.setNomeFantasia(fornecedorDTO.getNomeFantasia());
+            fornecedor.setEndereco(fornecedorDTO.getEndereco());
+            fornecedor.setTelefone(Telefone);
+            fornecedor.setEmail(fornecedorDTO.getEmail());
+        } else {
+            LOGGER.info("CNPJ ou Telefone inválidos, certifique-se de que contenham todos os digitos válidos!");
+        }
 
         fornecedor = this.iFornecedorRepository.save(fornecedor);
 
         return FornecedorDTO.of(fornecedor);
+    }
+
+    public List<Fornecedor> findAll() {
+
+        return iFornecedorRepository.findAll();
+
     }
 
     private void validate(FornecedorDTO fornecedorDTO) {
@@ -138,4 +155,6 @@ public class FornecedorService {
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
+
+
 }

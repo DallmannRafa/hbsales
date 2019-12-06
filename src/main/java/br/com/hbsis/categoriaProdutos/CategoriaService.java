@@ -1,6 +1,7 @@
 package br.com.hbsis.categoriaProdutos;
 
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,17 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Optional<Categoria> findByIdOptional(Long id) {
+        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaOptional.isPresent()) {
+            return categoriaOptional;
+
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public Categoria findCategoriaById(Long id) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
 
@@ -99,21 +111,19 @@ public class CategoriaService {
 
     public String[][] stringFyToCSVbyId (Long id) {
         String[] header = new String[] {"id", "codCategoria", "nomeCategoria", "fornecedor"};
-        String[] atributos = new String[4];
-        String[][] concat = new String[2][];
+        String[][] atributos = new String[2][4];
 
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaOptional.isPresent()) {
-            atributos[0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
-            atributos[1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
-            atributos[2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
-            atributos[3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
+            atributos[1][0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
+            atributos[1][1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
+            atributos[1][2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
+            atributos[1][3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
 
-            concat[0] = header;
-            concat[1] = atributos;
+            atributos[0] = header;
 
-            return concat;
+            return atributos;
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));

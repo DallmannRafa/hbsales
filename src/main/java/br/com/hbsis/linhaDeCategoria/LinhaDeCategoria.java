@@ -21,7 +21,7 @@ public class LinhaDeCategoria {
     private String codigoLinhaCategoria;
 
     @ManyToOne
-    @JoinColumn(name = "seg_categoria_da_linha", referencedColumnName = "id")
+    @JoinColumn(name = "id_categoria_da_linha", referencedColumnName = "id")
     @CsvBindByPosition(position = 3)
     private Categoria categoriaDaLinhaCategoria;
 

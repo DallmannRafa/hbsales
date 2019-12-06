@@ -16,13 +16,13 @@ import java.io.*;
 import java.util.Optional;
 
 @Service
-public class ArquivoService {
+public class CSVCategoriaService {
 
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
     private final ICategoriaRepository iCategoriaRepository;
 
-    public ArquivoService(FornecedorService fornecedorService, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public CSVCategoriaService(FornecedorService fornecedorService, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.iCategoriaRepository = iCategoriaRepository;
@@ -47,6 +47,13 @@ public class ArquivoService {
             writer.writeNext(a);
 
         }
+
+        ////////
+
+        String teste = "222.333.444/22-0000";
+        System.out.println("antigo: " + teste);
+        teste = teste.replaceAll("[^0-9]", "");
+        System.out.println("novo: " + teste);
 
     }
 

@@ -1,5 +1,7 @@
 package br.com.hbsis.fornecedor;
 
+import javax.validation.constraints.NotBlank;
+
 public class FornecedorDTO {
     private long id;
     private String razaoSocial;
