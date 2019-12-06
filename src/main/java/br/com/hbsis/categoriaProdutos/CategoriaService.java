@@ -31,16 +31,62 @@ public class CategoriaService {
         LOGGER.debug("Categoria: {}", categoriaDTO);
         LOGGER.debug("Fornecedor: {}", categoriaDTO.getFornecedor().getNomeFantasia());
 
-        Categoria categoria = new Categoria(
-                categoriaDTO.getCodCategoria(),
-                categoriaDTO.getNomeCategoria(),
-                categoriaDTO.getFornecedor()
-        );
+        String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
+        String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
+
+        CNPJFornecedor = CNPJFornecedor.replaceAll("[^0-9]", "");
+
+        Categoria categoria = new Categoria();
+        if (codigoInformadoPeloUsuario.length() <= 4) {
+            while (codigoInformadoPeloUsuario.length() < 4) {
+                codigoInformadoPeloUsuario = "0" + codigoInformadoPeloUsuario;
+            }
+
+            categoria.setCodigoCategoria("CAT" + CNPJFornecedor.substring(10) + codigoInformadoPeloUsuario);
+            categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+            categoria.setFornecedor(categoriaDTO.getFornecedor());
+
+        } else {
+            LOGGER.info("O código informado para a categoria deve conter menos que 5 digitos");
+        }
 
         categoria = this.iCategoriaRepository.save(categoria);
-
         return CategoriaDTO.of(categoria);
 
+    }
+
+    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
+        Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
+
+        if (categoriaExistenteOptional.isPresent()) {
+            Categoria categoriaExistente = categoriaExistenteOptional.get();
+            categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
+
+            LOGGER.info("Atualizando categoria... id: [{}]", categoriaExistente.getId());
+            LOGGER.debug("Payload: {}", categoriaDTO);
+            LOGGER.debug("Categoria Existente: {}", categoriaExistente);
+
+            String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
+            String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
+
+            if (codigoInformadoPeloUsuario.length() >= 4) {
+                codigoInformadoPeloUsuario = codigoInformadoPeloUsuario.substring(codigoInformadoPeloUsuario.length() - 4);
+            } else {
+                while (codigoInformadoPeloUsuario.length() < 4) {
+                    codigoInformadoPeloUsuario = "0" + codigoInformadoPeloUsuario;
+                }
+            }
+
+            categoriaExistente.setFornecedor(categoriaDTO.getFornecedor());
+            categoriaExistente.setCodigoCategoria("CAT" + CNPJFornecedor.substring(10) + codigoInformadoPeloUsuario);
+            categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
+
+            categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
+
+            return CategoriaDTO.of(categoriaExistente);
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
     public List<Categoria> findAll() {
@@ -81,28 +127,6 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
-        Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaExistenteOptional.isPresent()) {
-            Categoria categoriaExistente = categoriaExistenteOptional.get();
-
-            LOGGER.info("Atualizando categoria... id: [{}]", categoriaExistente.getId());
-            LOGGER.debug("Payload: {}", categoriaDTO);
-            LOGGER.debug("Categoria Existente: {}", categoriaExistente);
-
-            categoriaExistente.setFornecedor(categoriaDTO.getFornecedor());
-            categoriaExistente.setCodigoCategoria(categoriaDTO.getCodCategoria());
-            categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
-
-            categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
-
-            return CategoriaDTO.of(categoriaExistente);
-        }
-
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
     public void delete(Long id) {
         LOGGER.info("Executando delete para FORNECEDOR de ID: [{}]", id);
 
@@ -132,7 +156,7 @@ public class CategoriaService {
 
     public String[][] stringFyToCSVAll () {
         List<Categoria> categorias= this.iCategoriaRepository.findAll();
-        String[] header = new String[] {"id", "codCategoria", "nomeCategoria", "fornecedor"};
+        String[] header = new String[] {"cod_categoria", "nome_categoria", "razao_social_fornecedor", "cnpj_fornecedor"};
         String[][] atributos = new String[categorias.size() + 1][4];
         int contador = 1;
 
@@ -142,10 +166,12 @@ public class CategoriaService {
             Optional<Categoria> categoriaOptional = Optional.ofNullable(cat);
 
             if (categoriaOptional.isPresent()) {
-                atributos[contador] [0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
-                atributos[contador] [1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
-                atributos[contador] [2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
-                atributos[contador] [3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
+                CategoriaDTO categoria = CategoriaDTO.of(categoriaOptional.get());
+                String CNPJ = categoria.getFornecedor().getCnpj();
+                atributos[contador] [0] = categoria.getCodCategoria();
+                atributos[contador] [1] = categoria.getNomeCategoria();
+                atributos[contador] [2] = categoria.getFornecedor().getRazaoSocial();
+                atributos[contador] [3] = CNPJ.substring(0,2) + "." + CNPJ.substring(2,5) + "." + CNPJ.substring(5,8) + "/" + CNPJ.substring(8,12) + "-" + CNPJ.substring(12,14);
             }
 
             contador++;

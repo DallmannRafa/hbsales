@@ -48,13 +48,6 @@ public class CSVCategoriaService {
 
         }
 
-        ////////
-
-        String teste = "222.333.444/22-0000";
-        System.out.println("antigo: " + teste);
-        teste = teste.replaceAll("[^0-9]", "");
-        System.out.println("novo: " + teste);
-
     }
 
     public void oneToCSV (HttpServletResponse response, Long id) throws IOException {

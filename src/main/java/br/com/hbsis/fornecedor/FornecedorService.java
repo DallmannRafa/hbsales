@@ -33,7 +33,7 @@ public class FornecedorService {
         String Telefone = fornecedorDTO.getTelefone();
         Telefone = Telefone.replaceAll("[^0-9]", "");
 
-        if (CNPJ.length() != 14 || fornecedorDTO.getTelefone().length() != 13) {
+        if((CNPJ.length() == 14) || (Telefone.length() == 13)) {
             fornecedor.setRazaoSocial(fornecedorDTO.getRazaoSocial());
             fornecedor.setCnpj(CNPJ);
             fornecedor.setNomeFantasia(fornecedorDTO.getNomeFantasia());
