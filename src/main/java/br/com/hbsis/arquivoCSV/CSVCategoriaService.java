@@ -7,12 +7,16 @@ import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Optional;
 
 @Service
@@ -28,7 +32,7 @@ public class CSVCategoriaService {
         this.iCategoriaRepository = iCategoriaRepository;
     }
 
-    public void manyToCSV (HttpServletResponse response) throws IOException {
+    public void manyToCSV(HttpServletResponse response) throws IOException {
         String[][] dados = this.categoriaService.stringFyToCSVAll();
 
         String fileName = "categoria.csv";
@@ -43,14 +47,14 @@ public class CSVCategoriaService {
                 .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
                 .build();
 
-        for (String[] a: dados) {
+        for (String[] a : dados) {
             writer.writeNext(a);
 
         }
 
     }
 
-    public void oneToCSV (HttpServletResponse response, Long id) throws IOException {
+    public void oneToCSV(HttpServletResponse response, Long id) throws IOException {
 
         String[][] dados = categoriaService.stringFyToCSVbyId(id);
 
@@ -66,7 +70,7 @@ public class CSVCategoriaService {
                 .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
                 .build();
 
-        for (String[] a: dados) {
+        for (String[] a : dados) {
             writer.writeNext(a);
 
         }
@@ -77,28 +81,36 @@ public class CSVCategoriaService {
         String linhaArquivo;
         String quebraLinha = ";";
 
-        try(BufferedReader csvReader = new BufferedReader (new InputStreamReader(file.getInputStream()))){
+        try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
 
+            linhaArquivo = csvReader.readLine();
             while ((linhaArquivo = csvReader.readLine()) != null) {
+
                 String[] valores = linhaArquivo.split(quebraLinha);
-                Optional<Fornecedor> fornecedorOptional = fornecedorService.findByIdOptional(Long.parseLong(valores[3]));
+                String CNPJ = valores[3].replaceAll("[^0-9]", "");
 
-                if (fornecedorOptional.isPresent()) {
-                    Categoria categoria = new Categoria();
-                    categoria.setCodigoCategoria(valores[1]);
-                    categoria.setNomeCategoria(valores[2]);
-                    categoria.setFornecedor(fornecedorOptional.get());
+                if (!this.iCategoriaRepository.existsByCodigoCategoria(valores[0])) {
 
-                    this.iCategoriaRepository.save(categoria);
+                    Optional<Fornecedor> fornecedorOptional = fornecedorService.findByCnpjOptional(CNPJ);
 
-                } else {
-                    throw new IllegalArgumentException(String.format("Id %s não existe", fornecedorOptional));
+                    if (fornecedorOptional.isPresent()) {
+
+                        String codigoCategoriaOfCSV = valores[0];
+
+                        Categoria categoria = new Categoria();
+                        categoria.setCodigoCategoria(categoriaService.codeGenerator(CNPJ, codigoCategoriaOfCSV));
+                        categoria.setNomeCategoria(valores[2]);
+                        categoria.setFornecedor(fornecedorOptional.get());
+
+                        this.iCategoriaRepository.save(categoria);
+
+                    } else {
+                        throw new IllegalArgumentException(String.format("Id %s não existe", fornecedorOptional));
+                    }
                 }
-
             }
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

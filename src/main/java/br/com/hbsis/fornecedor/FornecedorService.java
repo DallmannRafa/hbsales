@@ -109,6 +109,16 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Optional<Fornecedor> findByCnpjOptional(String cnpj) {
+        Optional<Fornecedor> fornecedorOptional = this.iFornecedorRepository.findByCnpj(cnpj);
+
+        if (fornecedorOptional.isPresent()) {
+            return fornecedorOptional;
+        }
+
+        throw new IllegalArgumentException(String.format("CNPJ %s não existe", cnpj));
+    }
+
 
     public FornecedorDTO update(FornecedorDTO fornecedorDTO, Long id) {
         Optional<Fornecedor> fornecedorExistenteOptional = this.iFornecedorRepository.findById(id);

@@ -1,7 +1,6 @@
 package br.com.hbsis.categoriaProdutos;
 
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class CategoriaService {
     }
 
 
-
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
 
         categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
@@ -34,21 +32,12 @@ public class CategoriaService {
         String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
         String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
 
-        CNPJFornecedor = CNPJFornecedor.replaceAll("[^0-9]", "");
-
         Categoria categoria = new Categoria();
-        if (codigoInformadoPeloUsuario.length() <= 4) {
-            while (codigoInformadoPeloUsuario.length() < 4) {
-                codigoInformadoPeloUsuario = "0" + codigoInformadoPeloUsuario;
-            }
 
-            categoria.setCodigoCategoria("CAT" + CNPJFornecedor.substring(10) + codigoInformadoPeloUsuario);
-            categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-            categoria.setFornecedor(categoriaDTO.getFornecedor());
+        categoria.setCodigoCategoria(this.codeGenerator(CNPJFornecedor, codigoInformadoPeloUsuario));
+        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+        categoria.setFornecedor(categoriaDTO.getFornecedor());
 
-        } else {
-            LOGGER.info("O código informado para a categoria deve conter menos que 5 digitos");
-        }
 
         categoria = this.iCategoriaRepository.save(categoria);
         return CategoriaDTO.of(categoria);
@@ -69,16 +58,8 @@ public class CategoriaService {
             String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
             String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
 
-            if (codigoInformadoPeloUsuario.length() >= 4) {
-                codigoInformadoPeloUsuario = codigoInformadoPeloUsuario.substring(codigoInformadoPeloUsuario.length() - 4);
-            } else {
-                while (codigoInformadoPeloUsuario.length() < 4) {
-                    codigoInformadoPeloUsuario = "0" + codigoInformadoPeloUsuario;
-                }
-            }
-
             categoriaExistente.setFornecedor(categoriaDTO.getFornecedor());
-            categoriaExistente.setCodigoCategoria("CAT" + CNPJFornecedor.substring(10) + codigoInformadoPeloUsuario);
+            categoriaExistente.setCodigoCategoria(this.codeGenerator(CNPJFornecedor, codigoInformadoPeloUsuario));
             categoriaExistente.setNomeCategoria(categoriaDTO.getNomeCategoria());
 
             categoriaExistente = this.iCategoriaRepository.save(categoriaExistente);
@@ -133,17 +114,20 @@ public class CategoriaService {
         this.iCategoriaRepository.deleteById(id);
     }
 
-    public String[][] stringFyToCSVbyId (Long id) {
-        String[] header = new String[] {"id", "codCategoria", "nomeCategoria", "fornecedor"};
+    public String[][] stringFyToCSVbyId(Long id) {
+        String[] header = new String[]{"cod_categoria", "nome_categoria", "razao_social_fornecedor", "cnpj_fornecedor"};
         String[][] atributos = new String[2][4];
 
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
 
         if (categoriaOptional.isPresent()) {
-            atributos[1][0] = CategoriaDTO.of(categoriaOptional.get()).getId().toString();
-            atributos[1][1] = CategoriaDTO.of(categoriaOptional.get()).getCodCategoria();
-            atributos[1][2] = CategoriaDTO.of(categoriaOptional.get()).getNomeCategoria();
-            atributos[1][3] = CategoriaDTO.of(categoriaOptional.get()).getFornecedor().getId().toString();
+            CategoriaDTO categoria = CategoriaDTO.of(categoriaOptional.get());
+            String CNPJ = categoria.getFornecedor().getCnpj();
+
+            atributos[1][0] = categoria.getCodCategoria();
+            atributos[1][1] = categoria.getNomeCategoria();
+            atributos[1][2] = categoria.getFornecedor().getRazaoSocial();
+            atributos[1][3] = CNPJ.substring(0, 2) + "." + CNPJ.substring(2, 5) + "." + CNPJ.substring(5, 8) + "/" + CNPJ.substring(8, 12) + "-" + CNPJ.substring(12, 14);
 
             atributos[0] = header;
 
@@ -154,30 +138,47 @@ public class CategoriaService {
 
     }
 
-    public String[][] stringFyToCSVAll () {
-        List<Categoria> categorias= this.iCategoriaRepository.findAll();
-        String[] header = new String[] {"cod_categoria", "nome_categoria", "razao_social_fornecedor", "cnpj_fornecedor"};
+    public String[][] stringFyToCSVAll() {
+        List<Categoria> categorias = this.iCategoriaRepository.findAll();
+        String[] header = new String[]{"cod_categoria", "nome_categoria", "razao_social_fornecedor", "cnpj_fornecedor"};
         String[][] atributos = new String[categorias.size() + 1][4];
         int contador = 1;
 
         atributos[0] = header;
 
-        for (Categoria cat: categorias) {
+        for (Categoria cat : categorias) {
             Optional<Categoria> categoriaOptional = Optional.ofNullable(cat);
 
             if (categoriaOptional.isPresent()) {
                 CategoriaDTO categoria = CategoriaDTO.of(categoriaOptional.get());
                 String CNPJ = categoria.getFornecedor().getCnpj();
-                atributos[contador] [0] = categoria.getCodCategoria();
-                atributos[contador] [1] = categoria.getNomeCategoria();
-                atributos[contador] [2] = categoria.getFornecedor().getRazaoSocial();
-                atributos[contador] [3] = CNPJ.substring(0,2) + "." + CNPJ.substring(2,5) + "." + CNPJ.substring(5,8) + "/" + CNPJ.substring(8,12) + "-" + CNPJ.substring(12,14);
+
+                atributos[contador][0] = categoria.getCodCategoria();
+                atributos[contador][1] = categoria.getNomeCategoria();
+                atributos[contador][2] = categoria.getFornecedor().getRazaoSocial();
+                atributos[contador][3] = CNPJ.substring(0, 2) + "." + CNPJ.substring(2, 5) + "." + CNPJ.substring(5, 8) + "/" + CNPJ.substring(8, 12) + "-" + CNPJ.substring(12, 14);
             }
 
             contador++;
         }
 
         return atributos;
+    }
+
+    public String codeGenerator (String cnpjFornecedor, String codigoInformado) {
+
+        codigoInformado = codigoInformado.replaceAll("[^0-9]", "");
+        cnpjFornecedor = cnpjFornecedor.replaceAll("[^0-9]", "");
+
+        if (codigoInformado.length() >= 4) {
+            codigoInformado = codigoInformado.substring(codigoInformado.length() - 4);
+        } else {
+            while (codigoInformado.length() < 4) {
+                codigoInformado = "0" + codigoInformado;
+            }
+        }
+
+        return "CAT" + cnpjFornecedor.substring(10) + codigoInformado;
     }
 
 }
