@@ -13,10 +13,10 @@ public class LinhaDeCategoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @CsvBindByPosition(position = 0)
     private Long id;
-    @Column(name = "nome_linha_categoria", length = 100)
+    @Column(name = "nome_linha_categoria", length = 50)
     @CsvBindByPosition(position = 1)
     private String nomeLinhaCategoria;
-    @Column(name = "codigo_linha_categoria", length = 24)
+    @Column(name = "codigo_linha_categoria", length = 10)
     @CsvBindByPosition(position = 2)
     private String codigoLinhaCategoria;
 

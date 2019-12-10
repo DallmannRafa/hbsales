@@ -81,20 +81,29 @@ public class CSVLinhaCategoriaService {
 
         try(BufferedReader csvReader = new BufferedReader (new InputStreamReader(file.getInputStream()))){
 
+            linhaArquivo = csvReader.readLine();
             while ((linhaArquivo = csvReader.readLine()) != null) {
                 String[] valores = linhaArquivo.split(quebraLinha);
-                Optional<Categoria> categoriaOptional = categoriaService.findByIdOptional(Long.parseLong(valores[3]));
 
-                if (categoriaOptional.isPresent()) {
-                    LinhaDeCategoria linhaDeCategoria = new LinhaDeCategoria();
-                    linhaDeCategoria.setNomeLinhaCategoria(valores[1]);
-                    linhaDeCategoria.setCodigoLinhaCategoria(valores[2]);
-                    linhaDeCategoria.setCategoriaDaLinhaCategoria(categoriaOptional.get());
+                String codigoLinhaCategoria = valores[0];
 
-                    this.iLinhaDeCategoriaRepository.save(linhaDeCategoria);
+                if (!(this.iLinhaDeCategoriaRepository.existsByCodigoLinhaCategoria(codigoLinhaCategoria))) {
 
-                } else {
-                    throw new IllegalArgumentException(String.format("Id %s não existe", categoriaOptional));
+                    String codigoCategoria = valores[2];
+                    Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(codigoCategoria);
+
+                    if (categoriaOptional.isPresent()) {
+                        LinhaDeCategoria linhaDeCategoria = new LinhaDeCategoria();
+                        linhaDeCategoria.setNomeLinhaCategoria(valores[1]);
+                        linhaDeCategoria.setCodigoLinhaCategoria(linhaDeCategoriaService.codeGenerator(codigoLinhaCategoria));
+                        linhaDeCategoria.setCategoriaDaLinhaCategoria(categoriaOptional.get());
+
+                        this.iLinhaDeCategoriaRepository.save(linhaDeCategoria);
+
+                    } else {
+                        throw new IllegalArgumentException(String.format("Id %s não existe", categoriaOptional));
+                    }
+
                 }
 
             }

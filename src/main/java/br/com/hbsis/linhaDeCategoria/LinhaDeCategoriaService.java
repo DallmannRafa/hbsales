@@ -31,7 +31,7 @@ public class LinhaDeCategoriaService {
 
         LinhaDeCategoria linhaDeCategoria = new LinhaDeCategoria();
         linhaDeCategoria.setNomeLinhaCategoria(linhaDeCategoriaDTO.getNomeLinhaCategoria());
-        linhaDeCategoria.setCodigoLinhaCategoria(linhaDeCategoriaDTO.getCodigoLinhaCategoria());
+        linhaDeCategoria.setCodigoLinhaCategoria(this.codeGenerator(linhaDeCategoriaDTO.getCodigoLinhaCategoria()));
         linhaDeCategoria.setCategoriaDaLinhaCategoria(linhaDeCategoriaDTO.getCategoriaDaLinhaCategoria());
 
         linhaDeCategoria = this.iLinhaDeCategoriaRepository.save(linhaDeCategoria);
@@ -61,6 +61,7 @@ public class LinhaDeCategoriaService {
 
     public LinhaDeCategoriaDTO update(LinhaDeCategoriaDTO linhaDeCategoriaDTO, Long id) {
         Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
+        linhaDeCategoriaDTO.setCategoriaDaLinhaCategoria(categoriaService.findCategoriaById(linhaDeCategoriaDTO.getCategoriaDaLinhaCategoria().getId()));
 
         if (linhaDeCategoriaOptional.isPresent()) {
 
@@ -68,7 +69,7 @@ public class LinhaDeCategoriaService {
 
             LinhaDeCategoria linhaDeCategoriaExistente = linhaDeCategoriaOptional.get();
 
-            linhaDeCategoriaExistente.setCodigoLinhaCategoria(linhaDeCategoriaDTO.getCodigoLinhaCategoria());
+            linhaDeCategoriaExistente.setCodigoLinhaCategoria(this.codeGenerator(linhaDeCategoriaDTO.getCodigoLinhaCategoria()));
             linhaDeCategoriaExistente.setNomeLinhaCategoria(linhaDeCategoriaDTO.getNomeLinhaCategoria());
             linhaDeCategoriaExistente.setCategoriaDaLinhaCategoria(linhaDeCategoriaDTO.getCategoriaDaLinhaCategoria());
 
@@ -89,7 +90,7 @@ public class LinhaDeCategoriaService {
 
     public String[][] stringFyToCSVAll() {
         List<LinhaDeCategoria> linhasDeCategoria = this.iLinhaDeCategoriaRepository.findAll();
-        String[] header = {"id", "nomeLinhaCategoria", "codigoLinhaCategoria", "categoriaDaLinhaCategoria"};
+        String[] header = {"codigo", "nome", "codigo_categoria", "nome_categoria"};
         String[][] atributos = new String [linhasDeCategoria.size() + 1] [4];
         int contador = 1;
 
@@ -99,10 +100,10 @@ public class LinhaDeCategoriaService {
             Optional<LinhaDeCategoria> linhaDeCategoriaOptional = Optional.ofNullable(linhaDeCategoria);
 
             if (linhaDeCategoriaOptional.isPresent()) {
-                atributos[contador][0] = linhaDeCategoria.getId().toString();
+                atributos[contador][0] = linhaDeCategoria.getCodigoLinhaCategoria();
                 atributos[contador][1] = linhaDeCategoria.getNomeLinhaCategoria();
-                atributos[contador][2] = linhaDeCategoria.getCodigoLinhaCategoria();
-                atributos[contador][3] = linhaDeCategoria.getCategoriaDaLinhaCategoria().getId().toString();
+                atributos[contador][2] = linhaDeCategoria.getCategoriaDaLinhaCategoria().getCodigoCategoria();
+                atributos[contador][3] = linhaDeCategoria.getCategoriaDaLinhaCategoria().getNomeCategoria();
             }
 
             contador++;
@@ -112,7 +113,7 @@ public class LinhaDeCategoriaService {
     }
 
     public String[][] stringFyToCSVById (Long id) {
-        String[] header = {"id", "nomeLinhaCategoria", "codigoLinhaCategoria", "categoriaDaLinhaCategoria"};
+        String[] header = {"codigo", "nome", "codigo_categoria", "nome_categoria"};
         String[][] dados = new String[2][4];
 
         dados [0] = header;
@@ -121,14 +122,30 @@ public class LinhaDeCategoriaService {
 
         if (linhaDeCategoriaOptional.isPresent()) {
             LinhaDeCategoriaDTO linha = LinhaDeCategoriaDTO.of(linhaDeCategoriaOptional.get());
-            dados[1][0] = linha.getId().toString();
+            dados[1][0] = linha.getCodigoLinhaCategoria();
             dados[1][1] = linha.getNomeLinhaCategoria();
-            dados[1][2] = linha.getCodigoLinhaCategoria();
-            dados[1][3] = linha.getCategoriaDaLinhaCategoria().getId().toString();
+            dados[1][2] = linha.getCategoriaDaLinhaCategoria().getCodigoCategoria();
+            dados[1][3] = linha.getCategoriaDaLinhaCategoria().getNomeCategoria();
 
             return dados;
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public String codeGenerator (String codigoInformado) {
+
+        int codigoLength = codigoInformado.length();
+
+        if (codigoLength > 10) {
+            codigoInformado = codigoInformado.substring(codigoLength - 10);
+        } else if (codigoLength < 10) {
+            while (codigoInformado.length() < 10)
+            codigoInformado = "0" + codigoInformado;
+        }
+
+        codigoInformado = codigoInformado.toUpperCase();
+
+        return codigoInformado;
     }
 }

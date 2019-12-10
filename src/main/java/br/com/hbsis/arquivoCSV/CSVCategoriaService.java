@@ -99,7 +99,7 @@ public class CSVCategoriaService {
 
                         Categoria categoria = new Categoria();
                         categoria.setCodigoCategoria(categoriaService.codeGenerator(CNPJ, codigoCategoriaOfCSV));
-                        categoria.setNomeCategoria(valores[2]);
+                        categoria.setNomeCategoria(valores[1]);
                         categoria.setFornecedor(fornecedorOptional.get());
 
                         this.iCategoriaRepository.save(categoria);

@@ -20,13 +20,11 @@ public class CSVCategoriaRest {
     private CategoriaService categoriaService;
     private final CSVCategoriaService CSVCategoriaService;
 
-    private ICategoriaRepository repository;
 
     @Autowired
-    public CSVCategoriaRest(CategoriaService categoriaService, CSVCategoriaService arquivoService, ICategoriaRepository repository) {
+    public CSVCategoriaRest(CategoriaService categoriaService, CSVCategoriaService arquivoService) {
         this.categoriaService = categoriaService;
         this.CSVCategoriaService = arquivoService;
-        this.repository = repository;
     }
 
     @GetMapping("/export_cats")
