@@ -87,17 +87,6 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public Optional<Categoria> findByIdOptional(Long id) {
-        Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findById(id);
-
-        if (categoriaOptional.isPresent()) {
-            return categoriaOptional;
-
-        }
-
-        throw new IllegalArgumentException(String.format("ID %s não existe", id));
-    }
-
     public Optional<Categoria> findByCodigoCategoriaOptional(String codigoCategoria){
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(codigoCategoria);
 
@@ -190,5 +179,7 @@ public class CategoriaService {
 
         return "CAT" + cnpjFornecedor.substring(10) + codigoInformado;
     }
+
+
 
 }

@@ -59,6 +59,16 @@ public class LinhaDeCategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public LinhaDeCategoria findLinhaDeCategoriaById(Long id) {
+        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
+
+        if (linhaDeCategoriaOptional.isPresent()) {
+            return linhaDeCategoriaOptional.get();
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
     public LinhaDeCategoriaDTO update(LinhaDeCategoriaDTO linhaDeCategoriaDTO, Long id) {
         Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
         linhaDeCategoriaDTO.setCategoriaDaLinhaCategoria(categoriaService.findCategoriaById(linhaDeCategoriaDTO.getCategoriaDaLinhaCategoria().getId()));
@@ -137,9 +147,9 @@ public class LinhaDeCategoriaService {
 
         int codigoLength = codigoInformado.length();
 
-        if (codigoLength > 10) {
+        if (codigoLength >= 10) {
             codigoInformado = codigoInformado.substring(codigoLength - 10);
-        } else if (codigoLength < 10) {
+        } else {
             while (codigoInformado.length() < 10)
             codigoInformado = "0" + codigoInformado;
         }

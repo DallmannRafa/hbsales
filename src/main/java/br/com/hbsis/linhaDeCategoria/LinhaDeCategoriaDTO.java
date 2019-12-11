@@ -26,10 +26,10 @@ public class LinhaDeCategoriaDTO {
 
     public static LinhaDeCategoriaDTO of(LinhaDeCategoria linhaDeCategoria) {
         return new LinhaDeCategoriaDTO(
-                linhaDeCategoria.getId(),
-                linhaDeCategoria.getCodigoLinhaCategoria(),
-                linhaDeCategoria.getNomeLinhaCategoria(),
-                linhaDeCategoria.getCategoriaDaLinhaCategoria()
+            linhaDeCategoria.getId(),
+            linhaDeCategoria.getCodigoLinhaCategoria(),
+            linhaDeCategoria.getNomeLinhaCategoria(),
+            linhaDeCategoria.getCategoriaDaLinhaCategoria()
         );
     }
 
