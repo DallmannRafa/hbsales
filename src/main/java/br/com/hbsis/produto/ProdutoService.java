@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,11 +16,11 @@ public class ProdutoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoService.class);
 
-    private final IProdutoReoository iProdutoReoository;
+    private final IProdutoRepository iProdutoRepository;
     private final LinhaDeCategoriaService linhaDeCategoriaService;
 
-    public ProdutoService(IProdutoReoository iProdutoReoository, LinhaDeCategoriaService linhaDeCategoriaService) {
-        this.iProdutoReoository = iProdutoReoository;
+    public ProdutoService(IProdutoRepository iProdutoRepository, LinhaDeCategoriaService linhaDeCategoriaService) {
+        this.iProdutoRepository = iProdutoRepository;
         this.linhaDeCategoriaService = linhaDeCategoriaService;
     }
 
@@ -37,14 +38,14 @@ public class ProdutoService {
         produto.setUnidadePorCaixa(produtoDTO.getUnidadePorCaixa());
         produto.setValidade(produtoDTO.getValidade());
 
-        produto = this.iProdutoReoository.save(produto);
+        produto = this.iProdutoRepository.save(produto);
 
         return ProdutoDTO.of(produto);
 
     }
 
     public ProdutoDTO update(ProdutoDTO produtoDTO, Long id) {
-        Optional<Produto> produtoOptional = this.iProdutoReoository.findById(id);
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
 
         if (produtoOptional.isPresent()) {
 
@@ -65,7 +66,7 @@ public class ProdutoService {
             produto.setUnidadePorCaixa(produtoDTO.getUnidadePorCaixa());
             produto.setValidade(produtoDTO.getValidade());
 
-            produto = this.iProdutoReoository.save(produto);
+            produto = this.iProdutoRepository.save(produto);
 
             return ProdutoDTO.of(produto);
 
@@ -76,11 +77,11 @@ public class ProdutoService {
     }
 
     public List<Produto> findAll() {
-        return this.iProdutoReoository.findAll();
+        return this.iProdutoRepository.findAll();
     }
 
     public ProdutoDTO findById(Long id) {
-        Optional<Produto> produtoOptional = this.iProdutoReoository.findById(id);
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
 
         if (produtoOptional.isPresent()) {
             return ProdutoDTO.of(produtoOptional.get());
@@ -92,7 +93,7 @@ public class ProdutoService {
     public void delete(Long id) {
         LOGGER.info("Executando delete para Produto de ID: [{}]", id);
 
-        this.iProdutoReoository.deleteById(id);
+        this.iProdutoRepository.deleteById(id);
     }
 
     public String codeGenerator(String codigoInformado) {
@@ -122,6 +123,92 @@ public class ProdutoService {
         }
 
         throw new IllegalArgumentException("Unidade de medida inválida, somente mg, g ou kg");
+    }
+
+    public String[][] stringfyToCsvById (Long id) {
+        String[] header = new String[] {
+                "código_produto", "nome_produto", "preço", "unidade_por_caixa", "peso_unidade", "validade",
+                "codigo_linha_categoria", "nome_linha_categoria", "código_categoria", "nome_categoria",
+                "CNPJ_fornecedor", "razão_social_fornecedor"};
+        String[][] dados = new String [2][12];
+        dados[0] = header;
+
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
+
+        if (produtoOptional.isPresent()) {
+            Produto produto = produtoOptional.get();
+
+            String valor = String.valueOf(produto.getPrecoProduto()).replaceAll("[^0-9]", "");
+            valor = "R$" + valor.substring(0,valor.length()-2) + "," + valor.substring(valor.length()-2);
+
+            String peso = String.valueOf(produto.getPesoUnidade()).replaceAll("[^0-9]", "");
+            peso = peso.substring(0,peso.length()-3) + "," + peso.substring(peso.length()-3) + produto.getUnidadeMedidaPeso();
+
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            String vencimento = format.format(produto.getValidade());
+
+            String CNPJ = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getFornecedor().getCnpj();
+
+            dados[1][0] = produto.getCodigoProduto();
+            dados[1][1] = produto.getNomeProduto();
+            dados[1][2] = valor;
+            dados[1][3] = String.valueOf(produto.getUnidadePorCaixa());
+            dados[1][4] = peso;
+            dados[1][5] = vencimento;
+            dados[1][6] = produto.getLinhaDeCategoria().getCodigoLinhaCategoria();
+            dados[1][7] = produto.getLinhaDeCategoria().getNomeLinhaCategoria();
+            dados[1][8] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getCodigoCategoria();
+            dados[1][9] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getNomeCategoria();
+            dados[1][10] = CNPJ.substring(0, 2) + "." + CNPJ.substring(2, 5) + "." + CNPJ.substring(5, 8) + "/" + CNPJ.substring(8, 12) + "-" + CNPJ.substring(12, 14);
+            dados[1][11] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getFornecedor().getRazaoSocial();
+
+            return dados;
+        }
+
+        throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public String[][] stringfyAllToCsv () {
+        String[] header = new String[] {
+                "código_produto", "nome_produto", "preço", "unidade_por_caixa", "peso_unidade", "validade",
+                "codigo_linha_categoria", "nome_linha_categoria", "código_categoria", "nome_categoria",
+                "CNPJ_fornecedor", "razão_social_fornecedor"};
+        List<Produto> produtos = this.iProdutoRepository.findAll();
+        String[][] dados = new String [produtos.size() + 1][12];
+        dados[0] = header;
+
+        int contador = 1;
+
+        for (Produto produto : produtos) {
+
+            String valor = String.valueOf(produto.getPrecoProduto()).replaceAll("[^0-9]", "");
+            valor = "R$" + valor.substring(0,valor.length()-2) + "," + valor.substring(valor.length()-2);
+
+            String peso = String.valueOf(produto.getPesoUnidade()).replaceAll("[^0-9]", "");
+            peso = peso.substring(0,peso.length()-3) + "," + peso.substring(peso.length()-3) + produto.getUnidadeMedidaPeso();
+
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            String vencimento = format.format(produto.getValidade());
+
+            String CNPJ = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getFornecedor().getCnpj();
+
+            dados[contador][0] = produto.getCodigoProduto();
+            dados[contador][1] = produto.getNomeProduto();
+            dados[contador][2] = valor;
+            dados[contador][3] = String.valueOf(produto.getUnidadePorCaixa());
+            dados[contador][4] = peso;
+            dados[contador][5] = vencimento;
+            dados[contador][6] = produto.getLinhaDeCategoria().getCodigoLinhaCategoria();
+            dados[contador][7] = produto.getLinhaDeCategoria().getNomeLinhaCategoria();
+            dados[contador][8] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getCodigoCategoria();
+            dados[contador][9] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getNomeCategoria();
+            dados[contador][10] = CNPJ.substring(0, 2) + "." + CNPJ.substring(2, 5) + "." + CNPJ.substring(5, 8) + "/" + CNPJ.substring(8, 12) + "-" + CNPJ.substring(12, 14);
+            dados[contador][11] = produto.getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getFornecedor().getRazaoSocial();
+
+            contador++;
+        }
+
+        return dados;
     }
 
 }

@@ -169,10 +169,10 @@ public class CategoriaService {
         codigoInformado = codigoInformado.replaceAll("[^0-9]", "");
         cnpjFornecedor = cnpjFornecedor.replaceAll("[^0-9]", "");
 
-        if (codigoInformado.length() >= 4) {
-            codigoInformado = codigoInformado.substring(codigoInformado.length() - 4);
+        if (codigoInformado.length() >= 3) {
+            codigoInformado = codigoInformado.substring(codigoInformado.length() - 3);
         } else {
-            while (codigoInformado.length() < 4) {
+            while (codigoInformado.length() < 3) {
                 codigoInformado = "0" + codigoInformado;
             }
         }

@@ -69,6 +69,16 @@ public class LinhaDeCategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Optional<LinhaDeCategoria> findByCodigoLinhaCategoria(String codigoLinhaCategoria) {
+        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findByCodigoLinhaCategoria(codigoLinhaCategoria);
+
+        if (linhaDeCategoriaOptional.isPresent()) {
+            return linhaDeCategoriaOptional;
+        }
+
+        throw new IllegalArgumentException(String.format("Codigo %s não existe", codigoLinhaCategoria));
+    }
+
     public LinhaDeCategoriaDTO update(LinhaDeCategoriaDTO linhaDeCategoriaDTO, Long id) {
         Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
         linhaDeCategoriaDTO.setCategoriaDaLinhaCategoria(categoriaService.findCategoriaById(linhaDeCategoriaDTO.getCategoriaDaLinhaCategoria().getId()));

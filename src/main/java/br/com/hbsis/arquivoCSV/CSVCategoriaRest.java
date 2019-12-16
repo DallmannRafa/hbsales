@@ -17,13 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 public class CSVCategoriaRest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVCategoriaRest.class);
-    private CategoriaService categoriaService;
     private final CSVCategoriaService CSVCategoriaService;
 
 
     @Autowired
-    public CSVCategoriaRest(CategoriaService categoriaService, CSVCategoriaService arquivoService) {
-        this.categoriaService = categoriaService;
+    public CSVCategoriaRest(CSVCategoriaService arquivoService) {
         this.CSVCategoriaService = arquivoService;
     }
 
