@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +36,7 @@ public class ProdutoService {
         produto.setPrecoProduto(produtoDTO.getPrecoProduto().setScale(2, BigDecimal.ROUND_HALF_UP));
         produto.setLinhaDeCategoria(produtoDTO.getLinhaDeCategoria());
         produto.setPesoUnidade(produtoDTO.getPesoUnidade().setScale(3, BigDecimal.ROUND_HALF_UP));
-        produto.setUnidadeMedidaPeso(this.filtroUnidadeMedida(produtoDTO.getUnidadeMedidaPeso()));
+        produto.setUnidadeMedidaPeso(this.unidadeMedidaGenerator(produtoDTO.getUnidadeMedidaPeso()));
         produto.setUnidadePorCaixa(produtoDTO.getUnidadePorCaixa());
         produto.setValidade(produtoDTO.getValidade());
 
@@ -62,7 +64,7 @@ public class ProdutoService {
             produto.setPrecoProduto(produtoDTO.getPrecoProduto().setScale(2, BigDecimal.ROUND_HALF_UP));
             produto.setLinhaDeCategoria(produtoDTO.getLinhaDeCategoria());
             produto.setPesoUnidade(produtoDTO.getPesoUnidade().setScale(3, BigDecimal.ROUND_HALF_UP));
-            produto.setUnidadeMedidaPeso(this.filtroUnidadeMedida(produtoDTO.getUnidadeMedidaPeso()));
+            produto.setUnidadeMedidaPeso(this.unidadeMedidaGenerator(produtoDTO.getUnidadeMedidaPeso()));
             produto.setUnidadePorCaixa(produtoDTO.getUnidadePorCaixa());
             produto.setValidade(produtoDTO.getValidade());
 
@@ -94,35 +96,6 @@ public class ProdutoService {
         LOGGER.info("Executando delete para Produto de ID: [{}]", id);
 
         this.iProdutoRepository.deleteById(id);
-    }
-
-    public String codeGenerator(String codigoInformado) {
-        codigoInformado = codigoInformado.toUpperCase();
-
-        if (codigoInformado.length() >= 10) {
-            codigoInformado = codigoInformado.substring(codigoInformado.length() - 10);
-        } else {
-            while (codigoInformado.length() < 10) {
-                codigoInformado = "0" + codigoInformado;
-            }
-
-        }
-
-        return codigoInformado;
-    }
-
-    public String filtroUnidadeMedida(String unidadeMedida) {
-        unidadeMedida = unidadeMedida.toLowerCase();
-
-        if (unidadeMedida.equals("kg") || unidadeMedida.equals("g") || unidadeMedida.equals("mg")) {
-            if (unidadeMedida.equals("kg")) {
-                return "Kg";
-            } else {
-                return unidadeMedida;
-            }
-        }
-
-        throw new IllegalArgumentException("Unidade de medida inválida, somente mg, g ou kg");
     }
 
     public String[][] stringfyToCsvById (Long id) {
@@ -209,6 +182,69 @@ public class ProdutoService {
         }
 
         return dados;
+    }
+
+    public String codeGenerator(String codigoInformado) {
+        codigoInformado = codigoInformado.toUpperCase();
+
+        if (codigoInformado.length() >= 10) {
+            codigoInformado = codigoInformado.substring(codigoInformado.length() - 10);
+        } else {
+            while (codigoInformado.length() < 10) {
+                codigoInformado = "0" + codigoInformado;
+            }
+
+        }
+
+        return codigoInformado;
+    }
+
+    public String unidadeMedidaGenerator(String unidadeMedida) {
+        unidadeMedida = unidadeMedida.toLowerCase();
+        unidadeMedida = unidadeMedida.replaceAll("[^A-z]", "");
+
+        if (unidadeMedida.equals("kg") || unidadeMedida.equals("g") || unidadeMedida.equals("mg")) {
+            if (unidadeMedida.equals("kg")) {
+                return "Kg";
+            } else {
+                return unidadeMedida;
+            }
+        }
+
+        throw new IllegalArgumentException("Unidade de medida inválida, somente mg, g ou kg");
+    }
+
+    public BigDecimal valorGenerator(String valor) {
+        valor = valor.replaceAll("[^.|,|0-9]", "");
+        valor = valor.replaceAll("[,]", ".");
+        BigDecimal preco = new BigDecimal(valor);
+        preco = preco.setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        return preco;
+    }
+
+    public BigDecimal pesoGenerator(String peso) {
+        peso = peso.replaceAll("[^.|,|0-9]", "");
+        peso = peso.replaceAll("[,]", ".");
+        BigDecimal pesoBigDecimal = new BigDecimal(peso);
+        pesoBigDecimal = pesoBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
+
+        return pesoBigDecimal;
+    }
+
+    public Date dateGenerator(String dataString) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        Date data = format.parse(dataString);
+
+        return data;
+    }
+
+    public Boolean existsByCodigoProduto (String codigoProduto) {
+        return this.iProdutoRepository.existsByCodigoProduto(codigoProduto);
+    }
+
+    public Optional<Produto> findByCodigoProduto(String codigoProduto) {
+        return this.iProdutoRepository.findByCodigoProduto(codigoProduto);
     }
 
 }

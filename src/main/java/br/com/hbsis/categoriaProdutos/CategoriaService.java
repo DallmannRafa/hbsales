@@ -180,6 +180,9 @@ public class CategoriaService {
         return "CAT" + cnpjFornecedor.substring(10) + codigoInformado;
     }
 
+    public Boolean existsByCodigoCategoria(String codigoCategoria) {
+        return this.iCategoriaRepository.existsByCodigoCategoria(codigoCategoria);
+    }
 
 
 }

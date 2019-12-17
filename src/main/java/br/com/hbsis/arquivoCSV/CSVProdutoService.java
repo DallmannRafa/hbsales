@@ -1,8 +1,12 @@
 package br.com.hbsis.arquivoCSV;
 
+import br.com.hbsis.categoriaProdutos.Categoria;
+import br.com.hbsis.categoriaProdutos.CategoriaDTO;
 import br.com.hbsis.categoriaProdutos.CategoriaService;
+import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.linhaDeCategoria.LinhaDeCategoria;
+import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaDTO;
 import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaService;
 import br.com.hbsis.produto.IProdutoRepository;
 import br.com.hbsis.produto.Produto;
@@ -90,17 +94,14 @@ public class CSVProdutoService {
         String quebraLinha = ";";
 
         try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-
             linhaArquivo = csvReader.readLine();
-            while ((linhaArquivo = csvReader.readLine()) != null) {
 
+            while ((linhaArquivo = csvReader.readLine()) != null) {
                 String[] valores = linhaArquivo.split(quebraLinha);
 
                 if (this.iProdutoRepository.existsByCodigoProduto(valores[0])) {
                     Optional<Produto> produtoOptional = this.iProdutoRepository.findByCodigoProduto(valores[0]);
-
                     ProdutoDTO produtoDTO = this.produtoService.findById(produtoOptional.get().getId());
-
                     produtoDTO = this.updateProdutoDTO(valores, produtoDTO);
 
                     produtoService.update(produtoDTO, produtoOptional.get().getId());
@@ -110,6 +111,7 @@ public class CSVProdutoService {
 
                     produtoService.save(produtoDTO);
                 }
+
             }
 
         } catch (IOException | ParseException e) {
@@ -120,47 +122,106 @@ public class CSVProdutoService {
 
     public ProdutoDTO updateProdutoDTO(String[] valores, ProdutoDTO produtoDTO) throws ParseException {
 
-        String valor = valores[2].replaceAll("[^.|,|0-9]", "");
-        valor = valor.replaceAll("[,]", ".");
-        BigDecimal preco = new BigDecimal(valor);
-        preco = preco.setScale(2, BigDecimal.ROUND_HALF_UP);
-        produtoDTO.setPrecoProduto(preco);
-
-        String pesoString = valores[4].replaceAll("[^.|,|0-9]", "");
-        pesoString = pesoString.replaceAll("[,]", ".");
-        BigDecimal peso = new BigDecimal(pesoString);
-        peso = peso.setScale(3, BigDecimal.ROUND_HALF_UP);
-        produtoDTO.setPesoUnidade(peso);
-
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        Date data = format.parse(valores[5]);
-        produtoDTO.setValidade(data);
-
-        String codigoLinhaCategoria = valores[6];
-        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = linhaDeCategoriaService.findByCodigoLinhaCategoria(codigoLinhaCategoria);
-        if (linhaDeCategoriaOptional.isPresent()) {
-            LinhaDeCategoria linhaDeCategoria = linhaDeCategoriaOptional.get();
-            produtoDTO.setLinhaDeCategoria(linhaDeCategoria);
-        }
-
         produtoDTO.setCodigoProduto(produtoService.codeGenerator(valores[0]));
         produtoDTO.setNomeProduto(valores[1]);
+        produtoDTO.setPrecoProduto(produtoService.valorGenerator(valores[2]));
         produtoDTO.setUnidadePorCaixa(Integer.parseInt(valores[3]));
-
-        String unidadeMedida = valores[4];
-        String replacedUnidadeMedida = unidadeMedida.replaceAll("[^A-z]", "");
-        if (replacedUnidadeMedida.equalsIgnoreCase("g") || replacedUnidadeMedida.equalsIgnoreCase("mg") || replacedUnidadeMedida.equalsIgnoreCase("kg")) {
-            if (replacedUnidadeMedida.equalsIgnoreCase("kg")){
-                unidadeMedida = "Kg";
-            } else {
-                unidadeMedida = replacedUnidadeMedida;
-            }
-
-            produtoDTO.setUnidadeMedidaPeso(unidadeMedida);
-        } else {
-            throw new IllegalArgumentException("unidade de medida inválida");
-        }
+        produtoDTO.setPesoUnidade(produtoService.pesoGenerator(valores[4]));
+        produtoDTO.setUnidadeMedidaPeso(produtoService.unidadeMedidaGenerator(valores[4]));
+        produtoDTO.setValidade(produtoService.dateGenerator(valores[5]));
+        String codigoLinhaCategoria = valores[6];
+        produtoDTO.setLinhaDeCategoria(linhaDeCategoriaService.findByCodigoLinhaCategoria(codigoLinhaCategoria).get());
 
         return produtoDTO;
     }
+
+    public ProdutoDTO updateProdutoDTOPorFornecedor(String[] valores, ProdutoDTO produtoDTO) throws ParseException {
+
+        produtoDTO.setCodigoProduto(produtoService.codeGenerator(valores[0]));
+        produtoDTO.setNomeProduto(valores[1]);
+        produtoDTO.setPrecoProduto(produtoService.valorGenerator(valores[2]));
+        produtoDTO.setUnidadePorCaixa(Integer.parseInt(valores[3]));
+        produtoDTO.setPesoUnidade(produtoService.pesoGenerator(valores[4]));
+        produtoDTO.setUnidadeMedidaPeso(produtoService.unidadeMedidaGenerator(valores[5]));
+        produtoDTO.setValidade(produtoService.dateGenerator(valores[6]));
+
+        return produtoDTO;
+    }
+
+    public void readProdutoPorFornecedor(MultipartFile file, Long id) {
+        String linhaArquivo;
+        String quebraLinha = ";";
+
+        try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+
+            Optional<Fornecedor> fornecedorOptional = fornecedorService.findByIdOptional(id);
+            if (fornecedorOptional.isPresent()) {
+
+                linhaArquivo = csvReader.readLine();
+                while ((linhaArquivo = csvReader.readLine()) != null) {
+                    String[] valores = linhaArquivo.split(quebraLinha);
+
+                    ProdutoDTO produtoDTO = new ProdutoDTO();
+                    produtoDTO = this.updateProdutoDTOPorFornecedor(valores, produtoDTO);
+
+                    LinhaDeCategoria linhaDeCategoria;
+                    String codLinhaCategoria = linhaDeCategoriaService.codeGenerator(valores[7]);
+                    if (linhaDeCategoriaService.existsByCodigoLinhaCategoria(codLinhaCategoria)) {
+
+                        linhaDeCategoria = linhaDeCategoriaService.findByCodigoLinhaCategoria(codLinhaCategoria).get();
+
+                    } else {
+
+                        LinhaDeCategoriaDTO linhaDeCategoriaDTO = new LinhaDeCategoriaDTO();
+                        linhaDeCategoriaDTO.setCodigoLinhaCategoria(codLinhaCategoria);
+                        linhaDeCategoriaDTO.setNomeLinhaCategoria(valores[8]);
+
+                        Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(valores[9]);
+                        Categoria categoria;
+                        String codigoCategoria = categoriaService.codeGenerator(fornecedorOptional.get().getCnpj(),valores[9]);
+                        if (categoriaService.existsByCodigoCategoria(codigoCategoria)) {
+
+                           categoria = categoriaOptional.get();
+
+                        } else {
+
+                            CategoriaDTO categoriaDTO = new CategoriaDTO();
+                            categoriaDTO.setNomeCategoria(valores[10]);
+                            categoriaDTO.setCodCategoria(codigoCategoria);
+                            categoriaDTO.setFornecedor(fornecedorOptional.get());
+
+                            categoriaService.save(categoriaDTO);
+                            categoria = categoriaService.findByCodigoCategoriaOptional(codigoCategoria).get();
+                        }
+
+                        linhaDeCategoriaDTO.setCategoriaDaLinhaCategoria(categoria);
+
+                        linhaDeCategoriaService.save(linhaDeCategoriaDTO);
+                        linhaDeCategoria = linhaDeCategoriaService.findByCodigoLinhaCategoria(codLinhaCategoria).get();
+
+
+                    }
+
+                    produtoDTO.setLinhaDeCategoria(linhaDeCategoria);
+
+                    String codigoProduto = produtoService.codeGenerator(valores[0]);
+                    if (produtoService.existsByCodigoProduto(codigoProduto)) {
+                        Optional<Produto> produtoOptional = produtoService.findByCodigoProduto(codigoProduto);
+
+                        produtoService.update(produtoDTO, produtoOptional.get().getId());
+
+                    } else {
+                        produtoService.save(produtoDTO);
+                    }
+
+                }
+
+            }
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

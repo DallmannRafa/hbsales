@@ -33,5 +33,10 @@ public class CSVProdutoRest {
         this.csvProdutoService.readCSV(file);
     }
 
+    @PostMapping(value = "/upload/{id}", consumes = "multipart/form-data")
+    public void uploadMultipart(@RequestParam("file") MultipartFile file, @PathVariable("id") Long id) {
+        this.csvProdutoService.readProdutoPorFornecedor(file, id);
+    }
+
 }
 

@@ -168,4 +168,8 @@ public class LinhaDeCategoriaService {
 
         return codigoInformado;
     }
+
+    public Boolean existsByCodigoLinhaCategoria (String codigoLinhaCategoria) {
+        return this.iLinhaDeCategoriaRepository.existsByCodigoLinhaCategoria(codigoLinhaCategoria);
+    }
 }
