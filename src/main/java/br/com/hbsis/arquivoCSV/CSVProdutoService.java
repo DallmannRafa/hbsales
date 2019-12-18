@@ -179,9 +179,18 @@ public class CSVProdutoService {
                         Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(valores[9]);
                         Categoria categoria;
                         String codigoCategoria = categoriaService.codeGenerator(fornecedorOptional.get().getCnpj(),valores[9]);
-                        if (categoriaService.existsByCodigoCategoria(codigoCategoria)) {
+                        Long idFornecedorCategoriaInformada;
 
-                           categoria = categoriaOptional.get();
+                        if (!categoriaService.existsByCodigoCategoria(codigoCategoria)) {
+                            idFornecedorCategoriaInformada = 0L;
+                        } else {
+                            Optional<Categoria> categoriaOptional1 = categoriaService.findByCodigoCategoriaOptional(codigoCategoria);
+                            idFornecedorCategoriaInformada = categoriaOptional1.get().getFornecedor().getId();
+                        }
+
+                        if (categoriaService.existsByCodigoCategoria(codigoCategoria) && (idFornecedorCategoriaInformada.equals(id))) {
+
+                            categoria = categoriaOptional.get();
 
                         } else {
 
@@ -223,5 +232,7 @@ public class CSVProdutoService {
         }
 
     }
+
+
 
 }

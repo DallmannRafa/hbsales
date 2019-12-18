@@ -166,5 +166,9 @@ public class FornecedorService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Boolean existsById (Long id) {
+        return this.iFornecedorRepository.existsById(id);
+    }
+
 
 }
