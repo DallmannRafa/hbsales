@@ -1,0 +1,1 @@
+ALTER TABLE seg_fornecedores Alter column email VARCHAR (50) NOT NULL;

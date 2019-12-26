@@ -1,0 +1,1 @@
+ALTER TABLE seg_linha_categorias ADD PRIMARY KEY (id);

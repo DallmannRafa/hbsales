@@ -35,7 +35,7 @@ public class LinhaDeCategoriaRest {
         return this.linhaDeCategoriaService.findAll();
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public LinhaDeCategoriaDTO update (@PathVariable Long id, @RequestBody LinhaDeCategoriaDTO linhaDeCategoriaDTO) {
         return this.linhaDeCategoriaService.update(linhaDeCategoriaDTO, id);
     }
