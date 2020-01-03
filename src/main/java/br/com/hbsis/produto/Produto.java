@@ -44,18 +44,6 @@ public class Produto {
     public Produto() {
     }
 
-    public Produto(Long id, String codigoProduto, String nomeProduto, BigDecimal precoProduto, LinhaDeCategoria linhaDeCategoria, int unidadePorCaixa, BigDecimal pesoUnidade, String unidadeMedidaPeso, Date validade) {
-        this.id = id;
-        this.codigoProduto = codigoProduto;
-        this.nomeProduto = nomeProduto;
-        this.precoProduto = precoProduto;
-        this.linhaDeCategoria = linhaDeCategoria;
-        this.unidadePorCaixa = unidadePorCaixa;
-        this.pesoUnidade = pesoUnidade;
-        this.unidadeMedidaPeso = unidadeMedidaPeso;
-        this.validade = validade;
-    }
-
     public Long getId() {
         return id;
     }

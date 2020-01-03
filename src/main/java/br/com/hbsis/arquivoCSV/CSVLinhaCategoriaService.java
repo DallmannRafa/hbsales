@@ -7,6 +7,8 @@ import br.com.hbsis.linhaDeCategoria.LinhaDeCategoria;
 import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaService;
 import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,30 +22,24 @@ import java.util.Optional;
 @Service
 public class CSVLinhaCategoriaService {
 
-    public final ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository;
-    public final LinhaDeCategoriaService linhaDeCategoriaService;
-    public final CategoriaService categoriaService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVLinhaCategoriaService.class);
 
-    public CSVLinhaCategoriaService(ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository, LinhaDeCategoriaService linhaDeCategoriaService, CategoriaService categoriaService) {
+    private final ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository;
+    private final LinhaDeCategoriaService linhaDeCategoriaService;
+    private final CategoriaService categoriaService;
+    private final CSVUtils csvUtils;
+
+     public CSVLinhaCategoriaService(ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository, LinhaDeCategoriaService linhaDeCategoriaService, CategoriaService categoriaService, CSVUtils csvUtils) {
         this.iLinhaDeCategoriaRepository = iLinhaDeCategoriaRepository;
         this.linhaDeCategoriaService = linhaDeCategoriaService;
         this.categoriaService = categoriaService;
+        this.csvUtils = csvUtils;
     }
 
     public void manyToCSV (HttpServletResponse response) throws IOException {
         String[][] dados = this.linhaDeCategoriaService.stringFyToCSVAll();
 
-        String fileName = "linhasdecategoria.csv";
-
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
+        ICSVWriter writer = csvUtils.writerBuilder("linhasdecategoria.csv", response);
 
         for (String[] a: dados) {
             writer.writeNext(a);
@@ -56,17 +52,7 @@ public class CSVLinhaCategoriaService {
 
         String[][] dados = linhaDeCategoriaService.stringFyToCSVById(id);
 
-        String fileName = "linhadecategoria.csv";
-
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
+        ICSVWriter writer = csvUtils.writerBuilder("linhadecategoria.csv", response);
 
         for (String[] a: dados) {
             writer.writeNext(a);
@@ -110,7 +96,7 @@ public class CSVLinhaCategoriaService {
 
         }
         catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("Erro ao ler o arquivo .CSV", e);
         }
 
     }

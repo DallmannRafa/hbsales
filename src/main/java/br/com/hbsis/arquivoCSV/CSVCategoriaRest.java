@@ -1,10 +1,6 @@
 package br.com.hbsis.arquivoCSV;
 
 
-import br.com.hbsis.categoriaProdutos.CategoriaService;
-import br.com.hbsis.categoriaProdutos.ICategoriaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,12 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 
 @RestController
-@RequestMapping("/categoriafiles")
+@RequestMapping("/categorias/files")
 public class CSVCategoriaRest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CSVCategoriaRest.class);
     private final CSVCategoriaService CSVCategoriaService;
-
 
     @Autowired
     public CSVCategoriaRest(CSVCategoriaService arquivoService) {

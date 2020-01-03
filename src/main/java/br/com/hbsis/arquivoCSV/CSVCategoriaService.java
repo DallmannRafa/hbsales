@@ -22,30 +22,24 @@ import java.util.Optional;
 @Service
 public class CSVCategoriaService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVCategoriaService.class);
+
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
     private final ICategoriaRepository iCategoriaRepository;
+    private final CSVUtils csvUtils;
 
-    public CSVCategoriaService(FornecedorService fornecedorService, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository) {
+    public CSVCategoriaService(FornecedorService fornecedorService, CategoriaService categoriaService, ICategoriaRepository iCategoriaRepository, CSVUtils csvUtils) {
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.iCategoriaRepository = iCategoriaRepository;
+        this.csvUtils = csvUtils;
     }
 
     public void manyToCSV(HttpServletResponse response) throws IOException {
         String[][] dados = this.categoriaService.stringFyToCSVAll();
 
-        String fileName = "categoria.csv";
-
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
+        ICSVWriter writer = csvUtils.writerBuilder("categoria.csv", response);
 
         for (String[] a : dados) {
             writer.writeNext(a);
@@ -58,17 +52,7 @@ public class CSVCategoriaService {
 
         String[][] dados = categoriaService.stringFyToCSVbyId(id);
 
-        String fileName = "categoria.csv";
-
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
+        ICSVWriter writer = csvUtils.writerBuilder("categoria.csv", response);
 
         for (String[] a : dados) {
             writer.writeNext(a);
@@ -87,6 +71,7 @@ public class CSVCategoriaService {
             while ((linhaArquivo = csvReader.readLine()) != null) {
 
                 String[] valores = linhaArquivo.split(quebraLinha);
+
                 String CNPJ = valores[3].replaceAll("[^0-9]", "");
 
                 if (!this.iCategoriaRepository.existsByCodigoCategoria(valores[0])) {
@@ -111,7 +96,7 @@ public class CSVCategoriaService {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("Erro ao ler o arquivo .CSV", e);
         }
 
     }

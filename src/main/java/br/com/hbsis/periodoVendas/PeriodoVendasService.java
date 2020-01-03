@@ -2,8 +2,9 @@ package br.com.hbsis.periodoVendas;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,8 +13,6 @@ import java.util.Optional;
 
 @Service
 public class PeriodoVendasService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodoVendasService.class);
 
     private final IPeriodoVendasRepository iPeriodoVendasRepository;
     private final FornecedorService fornecedorService;
@@ -26,32 +25,24 @@ public class PeriodoVendasService {
     public PeriodoVendasDTO save(PeriodoVendasDTO periodoVendasDTO) {
         periodoVendasDTO.setFornecedor(fornecedorService.findFornecedorById(periodoVendasDTO.getFornecedor().getId()));
 
-        if (validateCriacaoPeriodoAnteriorAHoje(periodoVendasDTO.getDataInicioVendas())) {
+        LocalDate dataInicioVendas = periodoVendasDTO.getDataInicioVendas();
+        LocalDate dataFimVendas = periodoVendasDTO.getDataFimVendas();
 
-            PeriodoVendas periodoVendas = new PeriodoVendas();
+        this.validateOrderOfDates(dataInicioVendas,dataFimVendas);
+        this.validatePeriodBeforeToday(dataInicioVendas);
+        this.validateConflictingPeriods(dataInicioVendas, dataFimVendas, periodoVendasDTO.getFornecedor());
 
-            Long id = 0L;
+        PeriodoVendas periodoVendas = new PeriodoVendas();
 
-            if (this.validateDatas(periodoVendasDTO.getDataInicioVendas(), periodoVendasDTO.getDataFimVendas(), periodoVendasDTO.getFornecedor(), id)) {
+        periodoVendas.setDataInicioVendas(periodoVendasDTO.getDataInicioVendas());
+        periodoVendas.setDataFimVendas(periodoVendasDTO.getDataFimVendas());
+        periodoVendas.setDataRetiradaPedido(periodoVendasDTO.getDataRetiradaPedido());
+        periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
+        periodoVendas.setFornecedor(periodoVendasDTO.getFornecedor());
 
-                periodoVendas.setDataInicioVendas(periodoVendasDTO.getDataInicioVendas());
-                periodoVendas.setDataFimVendas(periodoVendasDTO.getDataFimVendas());
+        periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
 
-            } else {
-                throw new IllegalArgumentException("Data informada não válida!");
-            }
-
-            periodoVendas.setDataRetiradaPedido(periodoVendasDTO.getDataRetiradaPedido());
-            periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
-            periodoVendas.setFornecedor(periodoVendasDTO.getFornecedor());
-
-            periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
-
-            return PeriodoVendasDTO.of(periodoVendas);
-
-        }
-
-        throw new IllegalArgumentException("Periodo não pode ser cadastrado anterior a data de hoje");
+        return PeriodoVendasDTO.of(periodoVendas);
 
     }
 
@@ -59,38 +50,40 @@ public class PeriodoVendasService {
         Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
 
         if (periodoVendasOptional.isPresent()) {
-            if (this.validateAlteracaoAposVigencia(periodoVendasDTO.getDataInicioVendas(), periodoVendasDTO.getDataFimVendas(), this.iPeriodoVendasRepository.findById(id).get())) {
-                PeriodoVendas periodoVendas = periodoVendasOptional.get();
 
-                periodoVendas.setFornecedor(fornecedorService.findFornecedorById(periodoVendasDTO.getFornecedor().getId()));
+            LocalDate dataInicioVendas = periodoVendasDTO.getDataInicioVendas();
+            LocalDate dataFimVendas = periodoVendasDTO.getDataFimVendas();
+            LocalDate dateOfToday = LocalDate.now();
 
-                if (this.validateDatas(periodoVendasDTO.getDataInicioVendas(), periodoVendasDTO.getDataFimVendas(), periodoVendas.getFornecedor(), id)) {
+            this.validateOrderOfDates(dataInicioVendas,dataFimVendas);
+            this.validateEndValidity(dataFimVendas);
+            this.validateConflictingPeriods(dataInicioVendas, dataFimVendas, periodoVendasDTO.getFornecedor());
 
-                    periodoVendas.setDataInicioVendas(periodoVendasDTO.getDataInicioVendas());
-                    periodoVendas.setDataFimVendas(periodoVendasDTO.getDataFimVendas());
+            PeriodoVendas periodoVendas = periodoVendasOptional.get();
 
-                }
-
-                periodoVendas.setDataRetiradaPedido(periodoVendasDTO.getDataRetiradaPedido());
-                periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
-
-                periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
-
-                return PeriodoVendasDTO.of(periodoVendas);
+            if (periodoVendasDTO.getDataInicioVendas().isAfter(dateOfToday)) {
+                periodoVendas.setDataInicioVendas(periodoVendasDTO.getDataInicioVendas());
             }
 
-            throw new IllegalArgumentException("Periodo de vigência já expirou");
+            periodoVendas.setFornecedor(fornecedorService.findFornecedorById(periodoVendasDTO.getFornecedor().getId()));
+            periodoVendas.setDataFimVendas(periodoVendasDTO.getDataFimVendas());
+            periodoVendas.setDataRetiradaPedido(periodoVendasDTO.getDataRetiradaPedido());
+            periodoVendas.setDescricao(periodoVendasDTO.getDescricao());
 
+            periodoVendas = this.iPeriodoVendasRepository.save(periodoVendas);
+
+            return PeriodoVendasDTO.of(periodoVendas);
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+
     }
 
     public List<PeriodoVendas> findAll() {
         return this.iPeriodoVendasRepository.findAll();
     }
 
-    public PeriodoVendasDTO findById (Long id) {
+    public PeriodoVendasDTO findById(Long id) {
         Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
 
         if (periodoVendasOptional.isPresent()) {
@@ -100,64 +93,56 @@ public class PeriodoVendasService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public void delete (Long id) {
+    public void delete(Long id) {
         this.iPeriodoVendasRepository.deleteById(id);
     }
 
-    public List<PeriodoVendas> FindByFornecedor (Fornecedor fornecedor) {
-        return this.iPeriodoVendasRepository.findByFornecedor(fornecedor);
+    private void validateOrderOfDates(LocalDate dataInicial, LocalDate dataFinal){
+
+        if (dataInicial.isAfter(dataFinal)) {
+            throw new IllegalArgumentException("Ordem das datas incorreto!");
+        }
     }
 
-    public Boolean validateDatas(LocalDate dataInicio, LocalDate dataFim, Fornecedor fornecedor, Long id) {
+    private void validatePeriodBeforeToday(LocalDate dataInicial) {
 
-      List<PeriodoVendas> periodosVendas = this.FindByFornecedor(fornecedor);
-      Boolean validador = true;
+        LocalDate dateOfToday = LocalDate.now();
 
-      for (PeriodoVendas periodoVendas: periodosVendas) {
+        if (dataInicial.isBefore(dateOfToday)) {
+            throw new IllegalArgumentException("Periodo não deve ser criado anterior à hoje!");
+        }
+    }
 
-        LocalDate dataInicioExistente = periodoVendas.getDataInicioVendas();
-        LocalDate dataFimExistente = periodoVendas.getDataFimVendas();
-        Long idPeriodo = periodoVendas.getId();
+    private void validateEndValidity(LocalDate dataFinal) {
 
-        if (idPeriodo != id) {
+        LocalDate dateOfToday = LocalDate.now();
 
-            if (dataInicio.isAfter(dataFim)) {
-                validador = false;
-            } else if (!(dataFim.isBefore(dataInicioExistente) || dataInicio.isAfter(dataFimExistente))) {
-                validador = false;
+        if (dataFinal.isBefore(dateOfToday)){
+            throw new IllegalArgumentException("Periodo já possui sua data de vigência expirado!");
+        }
+    }
+
+    private void validateConflictingPeriods(LocalDate dataInicial, LocalDate dataFinal, Fornecedor fornecedor) {
+        int page = 0;
+        int itemsByPage = 50;
+
+        Pageable paging = PageRequest.of(page, itemsByPage);
+        int pagesOfRequest = iPeriodoVendasRepository.findByFornecedor(fornecedor, paging).getTotalPages();
+
+        for (int i = pagesOfRequest; i != 0; i--) {
+            Page<PeriodoVendas> periodosVendas = iPeriodoVendasRepository.findByFornecedor(fornecedor, paging);
+
+            for (PeriodoVendas periodo: periodosVendas) {
+                LocalDate initialExistent = periodo.getDataInicioVendas();
+                LocalDate finalExistent = periodo.getDataFimVendas();
+
+                if (!(dataInicial.isBefore(initialExistent) && dataFinal.isBefore(initialExistent) || dataInicial.isAfter(finalExistent) && dataFinal.isAfter(finalExistent))) {
+                    throw new IllegalArgumentException("Periodo está em conflito com outro já cadastrado!");
+                }
             }
+            page++;
+            paging =PageRequest.of(page, itemsByPage);
         }
-
-      }
-
-      return validador;
-
-    }
-
-    public Boolean validateCriacaoPeriodoAnteriorAHoje (LocalDate dataInicial) {
-        Boolean validador = true;
-        LocalDate dateNow = LocalDate.now();
-
-        if (dataInicial.isBefore(dateNow)) {
-            validador = false;
-        }
-
-        return validador;
-    }
-
-    public Boolean validateAlteracaoAposVigencia (LocalDate dataInicioInformado, LocalDate dataFimInformado, PeriodoVendas periodoVendasExistente) {
-
-        LocalDate dateNow =  LocalDate.now();
-        Boolean validador = true;
-
-        if (!dataInicioInformado.isEqual(periodoVendasExistente.getDataInicioVendas()) && !dataFimInformado.isEqual(periodoVendasExistente.getDataFimVendas())) {
-            if (dateNow.isAfter(periodoVendasExistente.getDataFimVendas())) {
-                validador = false;
-            }
-        }
-
-        return validador;
-
     }
 
 }

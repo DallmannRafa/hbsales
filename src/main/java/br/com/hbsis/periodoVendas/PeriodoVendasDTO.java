@@ -13,9 +13,6 @@ public class PeriodoVendasDTO {
     private LocalDate dataRetiradaPedido;
     private String descricao;
 
-    public PeriodoVendasDTO() {
-    }
-
     public PeriodoVendasDTO(LocalDate dataInicioVendas, LocalDate dataFimVendas, Fornecedor fornecedor, LocalDate dataRetiradaPedido, String descricao) {
         this.dataInicioVendas = dataInicioVendas;
         this.dataFimVendas = dataFimVendas;

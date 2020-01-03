@@ -33,14 +33,14 @@ public class ProdutoDTO {
 
     public static ProdutoDTO of(Produto produto) {
         return new ProdutoDTO(
-            produto.getCodigoProduto(),
-            produto.getNomeProduto(),
-            produto.getPrecoProduto(),
-            produto.getLinhaDeCategoria(),
-            produto.getUnidadePorCaixa(),
-            produto.getPesoUnidade(),
-            produto.getUnidadeMedidaPeso(),
-            produto.getValidade()
+                produto.getCodigoProduto(),
+                produto.getNomeProduto(),
+                produto.getPrecoProduto(),
+                produto.getLinhaDeCategoria(),
+                produto.getUnidadePorCaixa(),
+                produto.getPesoUnidade(),
+                produto.getUnidadeMedidaPeso(),
+                produto.getValidade()
         );
     }
 

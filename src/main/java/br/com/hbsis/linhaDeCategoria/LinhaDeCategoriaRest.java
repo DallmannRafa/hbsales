@@ -1,7 +1,5 @@
 package br.com.hbsis.linhaDeCategoria;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,8 +8,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/linhadecategorias")
 public class LinhaDeCategoriaRest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinhaDeCategoriaRest.class);
 
     private final LinhaDeCategoriaService linhaDeCategoriaService;
 
@@ -30,13 +26,13 @@ public class LinhaDeCategoriaRest {
         return this.linhaDeCategoriaService.findById(id);
     }
 
-    @RequestMapping("/listar")
-    public List<LinhaDeCategoria> findAll()  {
+    @GetMapping("/listar")
+    public List<LinhaDeCategoria> findAll() {
         return this.linhaDeCategoriaService.findAll();
     }
 
     @PutMapping("/{id}")
-    public LinhaDeCategoriaDTO update (@PathVariable Long id, @RequestBody LinhaDeCategoriaDTO linhaDeCategoriaDTO) {
+    public LinhaDeCategoriaDTO update(@PathVariable Long id, @RequestBody LinhaDeCategoriaDTO linhaDeCategoriaDTO) {
         return this.linhaDeCategoriaService.update(linhaDeCategoriaDTO, id);
     }
 

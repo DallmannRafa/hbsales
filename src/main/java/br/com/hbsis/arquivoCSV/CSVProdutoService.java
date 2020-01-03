@@ -12,9 +12,9 @@ import br.com.hbsis.produto.IProdutoRepository;
 import br.com.hbsis.produto.Produto;
 import br.com.hbsis.produto.ProdutoDTO;
 import br.com.hbsis.produto.ProdutoService;
-import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
-import org.springframework.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,47 +22,38 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class CSVProdutoService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVProdutoService.class);
 
     private final ProdutoService produtoService;
     private final IProdutoRepository iProdutoRepository;
     private final FornecedorService fornecedorService;
     private final CategoriaService categoriaService;
     private final LinhaDeCategoriaService linhaDeCategoriaService;
+    private final CSVUtils csvUtils;
 
-    public CSVProdutoService(ProdutoService produtoService, IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaService categoriaService, LinhaDeCategoriaService linhaDeCategoriaService) {
+    public CSVProdutoService(ProdutoService produtoService, IProdutoRepository iProdutoRepository, FornecedorService fornecedorService, CategoriaService categoriaService, LinhaDeCategoriaService linhaDeCategoriaService, CSVUtils csvUtils) {
         this.produtoService = produtoService;
         this.iProdutoRepository = iProdutoRepository;
         this.fornecedorService = fornecedorService;
         this.categoriaService = categoriaService;
         this.linhaDeCategoriaService = linhaDeCategoriaService;
+        this.csvUtils = csvUtils;
     }
 
     public void oneToCSV(HttpServletResponse response, Long id) throws IOException {
 
         String[][] dados = produtoService.stringfyToCsvById(id);
 
-        String fileName = "produto.csv";
+        ICSVWriter writer = csvUtils.writerBuilder("produto.csv", response);
 
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
-
-        for (String[] a : dados) {
-            writer.writeNext(a);
+        for (String[] linhaDeDado : dados) {
+            writer.writeNext(linhaDeDado);
 
         }
     }
@@ -70,20 +61,10 @@ public class CSVProdutoService {
     public void manyToCSV(HttpServletResponse response) throws IOException {
         String[][] dados = this.produtoService.stringfyAllToCsv();
 
-        String fileName = "produtos.csv";
+        ICSVWriter writer = csvUtils.writerBuilder("produtos.csv", response);
 
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        ICSVWriter writer = new CSVWriterBuilder(response.getWriter())
-                .withSeparator(';')
-                .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVWriter.DEFAULT_ESCAPE_CHARACTER)
-                .withLineEnd(ICSVWriter.DEFAULT_LINE_END)
-                .build();
-
-        for (String[] a : dados) {
-            writer.writeNext(a);
+        for (String[] linhaDeDado : dados) {
+            writer.writeNext(linhaDeDado);
 
         }
 
@@ -94,17 +75,20 @@ public class CSVProdutoService {
         String quebraLinha = ";";
 
         try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            linhaArquivo = csvReader.readLine();
 
+            linhaArquivo = csvReader.readLine();
             while ((linhaArquivo = csvReader.readLine()) != null) {
                 String[] valores = linhaArquivo.split(quebraLinha);
 
                 if (this.iProdutoRepository.existsByCodigoProduto(valores[0])) {
                     Optional<Produto> produtoOptional = this.iProdutoRepository.findByCodigoProduto(valores[0]);
-                    ProdutoDTO produtoDTO = this.produtoService.findById(produtoOptional.get().getId());
-                    produtoDTO = this.updateProdutoDTO(valores, produtoDTO);
+                    if (produtoOptional.isPresent()) {
+                        ProdutoDTO produtoDTO = this.produtoService.findById(produtoOptional.get().getId());
+                        produtoDTO = this.updateProdutoDTO(valores, produtoDTO);
 
-                    produtoService.update(produtoDTO, produtoOptional.get().getId());
+                        produtoService.update(produtoDTO, produtoOptional.get().getId());
+                    }
+
                 } else {
                     ProdutoDTO produtoDTO = new ProdutoDTO();
                     produtoDTO = this.updateProdutoDTO(valores, produtoDTO);
@@ -115,7 +99,7 @@ public class CSVProdutoService {
             }
 
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            LOGGER.info("Erro ao ler o arquivo .CSV", e);
         }
 
     }
@@ -130,7 +114,11 @@ public class CSVProdutoService {
         produtoDTO.setUnidadeMedidaPeso(produtoService.unidadeMedidaGenerator(valores[4]));
         produtoDTO.setValidade(produtoService.dateGenerator(valores[5]));
         String codigoLinhaCategoria = valores[6];
-        produtoDTO.setLinhaDeCategoria(linhaDeCategoriaService.findByCodigoLinhaCategoria(codigoLinhaCategoria).get());
+        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = linhaDeCategoriaService.findByCodigoLinhaCategoriaOptional(codigoLinhaCategoria);
+        if (linhaDeCategoriaOptional.isPresent()) {
+            produtoDTO.setLinhaDeCategoria(linhaDeCategoriaOptional.get());
+
+        }
 
         return produtoDTO;
     }
@@ -166,9 +154,10 @@ public class CSVProdutoService {
 
                     LinhaDeCategoria linhaDeCategoria;
                     String codLinhaCategoria = linhaDeCategoriaService.codeGenerator(valores[7]);
-                    if (linhaDeCategoriaService.existsByCodigoLinhaCategoria(codLinhaCategoria)) {
+                    Optional<LinhaDeCategoria> linhaDeCategoriaOptional = linhaDeCategoriaService.findByCodigoLinhaCategoriaOptional(codLinhaCategoria);
+                    if (linhaDeCategoriaOptional.isPresent()) {
 
-                        linhaDeCategoria = linhaDeCategoriaService.findByCodigoLinhaCategoria(codLinhaCategoria).get();
+                        linhaDeCategoria = linhaDeCategoriaOptional.get();
 
                     } else {
 
@@ -176,21 +165,22 @@ public class CSVProdutoService {
                         linhaDeCategoriaDTO.setCodigoLinhaCategoria(codLinhaCategoria);
                         linhaDeCategoriaDTO.setNomeLinhaCategoria(valores[8]);
 
-                        Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(valores[9]);
-                        Categoria categoria;
-                        String codigoCategoria = categoriaService.codeGenerator(fornecedorOptional.get().getCnpj(),valores[9]);
-                        Long idFornecedorCategoriaInformada;
+                        String codigoCategoria = categoriaService.codeGenerator(fornecedorOptional.get().getCnpj(), valores[9]);
+                        Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(codigoCategoria);
+                        Categoria categoria ;
 
-                        if (!categoriaService.existsByCodigoCategoria(codigoCategoria)) {
-                            idFornecedorCategoriaInformada = 0L;
-                        } else {
-                            Optional<Categoria> categoriaOptional1 = categoriaService.findByCodigoCategoriaOptional(codigoCategoria);
-                            idFornecedorCategoriaInformada = categoriaOptional1.get().getFornecedor().getId();
+                        Long idFornecedorCategoriaInformada = 0L;
+
+                        if (categoriaOptional.isPresent()) {
+
+                            idFornecedorCategoriaInformada = categoriaOptional.get().getFornecedor().getId();
+
                         }
 
-                        if (categoriaService.existsByCodigoCategoria(codigoCategoria) && (idFornecedorCategoriaInformada.equals(id))) {
+                        if (categoriaOptional.isPresent() && (idFornecedorCategoriaInformada.equals(id))) {
 
                             categoria = categoriaOptional.get();
+
 
                         } else {
 
@@ -200,13 +190,15 @@ public class CSVProdutoService {
                             categoriaDTO.setFornecedor(fornecedorOptional.get());
 
                             categoriaService.save(categoriaDTO);
-                            categoria = categoriaService.findByCodigoCategoriaOptional(codigoCategoria).get();
+
+
+                            categoria = categoriaService.findByCodigoCategoria(codigoCategoria);
                         }
 
                         linhaDeCategoriaDTO.setCategoriaDaLinhaCategoria(categoria);
 
                         linhaDeCategoriaService.save(linhaDeCategoriaDTO);
-                        linhaDeCategoria = linhaDeCategoriaService.findByCodigoLinhaCategoria(codLinhaCategoria).get();
+                        linhaDeCategoria = linhaDeCategoriaService.findByCodigoLinhaCategoria(codLinhaCategoria);
 
 
                     }
@@ -214,8 +206,9 @@ public class CSVProdutoService {
                     produtoDTO.setLinhaDeCategoria(linhaDeCategoria);
 
                     String codigoProduto = produtoService.codeGenerator(valores[0]);
-                    if (produtoService.existsByCodigoProduto(codigoProduto)) {
-                        Optional<Produto> produtoOptional = produtoService.findByCodigoProduto(codigoProduto);
+                    Optional<Produto> produtoOptional = produtoService.findByCodigoProduto(codigoProduto);
+
+                    if (produtoOptional.isPresent()) {
 
                         produtoService.update(produtoDTO, produtoOptional.get().getId());
 
@@ -228,11 +221,10 @@ public class CSVProdutoService {
             }
 
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            LOGGER.info("Erro ao ler o arquivo .CSV", e);
         }
 
     }
-
 
 
 }

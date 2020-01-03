@@ -27,7 +27,7 @@ public class FornecedorRest {
         return this.fornecedorService.save(fornecedorDTO);
     }
 
-    @RequestMapping("/listar")
+    @GetMapping("/listar")
     public List<Fornecedor> findProdutos() {
         return fornecedorService.findAll();
     }

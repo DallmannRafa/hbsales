@@ -1,7 +1,5 @@
 package br.com.hbsis.fornecedor;
 
-import javax.validation.constraints.NotBlank;
-
 public class FornecedorDTO {
     private long id;
     private String razaoSocial;
@@ -10,10 +8,6 @@ public class FornecedorDTO {
     private String endereco;
     private String telefone;
     private String email;
-
-    public FornecedorDTO() {
-
-    }
 
     public FornecedorDTO(long id, String razaoSocial, String cnpj, String nomeFantasia, String endereco, String telefone, String email) {
         this.id = id;

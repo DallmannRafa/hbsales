@@ -9,15 +9,7 @@ public class CategoriaDTO {
     private String nomeCategoria;
     private Fornecedor fornecedor;
 
-
-
     public CategoriaDTO() {
-    }
-
-    public CategoriaDTO(String codCategoria, String nomeCategoria, Fornecedor fornecedor) {
-        this.codCategoria = codCategoria;
-        this.nomeCategoria = nomeCategoria;
-        this.fornecedor = fornecedor;
     }
 
     public CategoriaDTO(long id, String codCategoria, String nomeCategoria, Fornecedor fornecedor) {

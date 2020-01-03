@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/linhacategoriafiles")
+@RequestMapping("/linhadecategorias/files")
 public class CSVLinhaCategoriaRest {
 
     private final CSVLinhaCategoriaService csvLinhaCategoriaService;

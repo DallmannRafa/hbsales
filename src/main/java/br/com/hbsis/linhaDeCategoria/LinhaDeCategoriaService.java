@@ -69,11 +69,21 @@ public class LinhaDeCategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public Optional<LinhaDeCategoria> findByCodigoLinhaCategoria(String codigoLinhaCategoria) {
+    public Optional<LinhaDeCategoria> findByCodigoLinhaCategoriaOptional(String codigoLinhaCategoria) {
         Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findByCodigoLinhaCategoria(codigoLinhaCategoria);
 
         if (linhaDeCategoriaOptional.isPresent()) {
             return linhaDeCategoriaOptional;
+        }
+
+        throw new IllegalArgumentException(String.format("Codigo %s não existe", codigoLinhaCategoria));
+    }
+
+    public LinhaDeCategoria findByCodigoLinhaCategoria(String codigoLinhaCategoria) {
+        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findByCodigoLinhaCategoria(codigoLinhaCategoria);
+
+        if (linhaDeCategoriaOptional.isPresent()) {
+            return linhaDeCategoriaOptional.get();
         }
 
         throw new IllegalArgumentException(String.format("Codigo %s não existe", codigoLinhaCategoria));
@@ -103,7 +113,7 @@ public class LinhaDeCategoriaService {
 
     public void delete(Long id) {
 
-        LOGGER.info("Deletando Linha de Categoria com ID:" + id);
+        LOGGER.info("Deletando Linha de Categoria com ID:", id);
 
         this.iLinhaDeCategoriaRepository.deleteById(id);
     }

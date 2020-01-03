@@ -1,13 +1,24 @@
 package br.com.hbsis.funcionario;
 
-public class FuncionarioDTO {
+import org.springframework.data.jpa.repository.Query;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "seg_funcionarios")
+public class Funcionario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "nome")
     private String nome;
+    @Column(name = "email")
     private String email;
+    @Column(name = "uuid")
     private String uuid;
 
-    public FuncionarioDTO(String nome, String email, String uuid) {
+    public Funcionario(String nome, String email, String uuid) {
         this.nome = nome;
         this.email = email;
         this.uuid = uuid;
@@ -43,7 +54,7 @@ public class FuncionarioDTO {
 
     @Override
     public String toString() {
-        return "FuncionarioDTO{" +
+        return "Funcionario{" +
                 "id=" + id +
                 ", nome='" + nome + '\'' +
                 ", email='" + email + '\'' +

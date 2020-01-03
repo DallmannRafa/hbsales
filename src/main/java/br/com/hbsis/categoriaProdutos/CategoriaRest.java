@@ -36,7 +36,7 @@ public class CategoriaRest {
         return this.categoriaService.findById(id);
     }
 
-    @RequestMapping("/listar")
+    @GetMapping("/listar")
     public List<Categoria> findProdutos() {
         return categoriaService.findAll();
     }

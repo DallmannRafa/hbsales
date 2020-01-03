@@ -24,15 +24,7 @@ public class PeriodoVendas {
     @Column(name = "descricao", length = 50)
     private String descricao;
 
-    public PeriodoVendas() { }
-
-    public PeriodoVendas(Long id, LocalDate dataInicioVendas, LocalDate dataFimVendas, Fornecedor fornecedor, LocalDate dataRetiradaPedido, String descricao) {
-        this.id = id;
-        this.dataInicioVendas = dataInicioVendas;
-        this.dataFimVendas = dataFimVendas;
-        this.fornecedor = fornecedor;
-        this.dataRetiradaPedido = dataRetiradaPedido;
-        this.descricao = descricao;
+    public PeriodoVendas() {
     }
 
     public Long getId() {

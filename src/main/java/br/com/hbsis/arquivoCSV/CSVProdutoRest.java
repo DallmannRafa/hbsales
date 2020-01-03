@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/produtofiles")
+@RequestMapping("/produtos/files")
 public class CSVProdutoRest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVProdutoRest.class);

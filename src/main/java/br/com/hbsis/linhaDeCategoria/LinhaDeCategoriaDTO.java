@@ -11,12 +11,6 @@ public class LinhaDeCategoriaDTO {
     public LinhaDeCategoriaDTO() {
     }
 
-    public LinhaDeCategoriaDTO(String codigoLinhaCategoria, String nomeLinhaCategoria, Categoria categoriaDaLinhaCategoria) {
-        this.codigoLinhaCategoria = codigoLinhaCategoria;
-        this.nomeLinhaCategoria = nomeLinhaCategoria;
-        this.categoriaDaLinhaCategoria = categoriaDaLinhaCategoria;
-    }
-
     public LinhaDeCategoriaDTO(Long id, String codigoLinhaCategoria, String nomeLinhaCategoria, Categoria categoriaDaLinhaCategoria) {
         this.id = id;
         this.codigoLinhaCategoria = codigoLinhaCategoria;
