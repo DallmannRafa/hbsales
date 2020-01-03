@@ -1,7 +1,5 @@
 package br.com.hbsis.funcionario;
 
-import org.springframework.data.jpa.repository.Query;
-
 import javax.persistence.*;
 
 @Entity
@@ -17,6 +15,9 @@ public class Funcionario {
     private String email;
     @Column(name = "uuid")
     private String uuid;
+
+    public Funcionario() {
+    }
 
     public Funcionario(String nome, String email, String uuid) {
         this.nome = nome;
