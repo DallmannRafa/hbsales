@@ -1,6 +1,7 @@
 package br.com.hbsis.produto;
 
 import br.com.hbsis.linhaDeCategoria.LinhaDeCategoria;
+import br.com.hbsis.pedido.Pedido;
 import com.opencsv.bean.CsvBindByPosition;
 
 import javax.persistence.*;
@@ -40,6 +41,9 @@ public class Produto {
     @Column(name = "validade")
     @CsvBindByPosition(position = 8)
     private Date validade;
+
+    @ManyToMany(mappedBy = "produtos")
+    private Pedido pedido;
 
     public Produto() {
     }
