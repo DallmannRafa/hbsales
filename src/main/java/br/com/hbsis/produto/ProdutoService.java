@@ -92,6 +92,26 @@ public class ProdutoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
+    public Produto findProdutoById(Long id) {
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
+
+        if (produtoOptional.isPresent()) {
+            return produtoOptional.get();
+        }
+
+        throw new IllegalArgumentException("Id não existe");
+    }
+
+    public Optional<Produto> findByIdOptional(Long id) {
+        Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
+
+        if (produtoOptional.isPresent()) {
+            return produtoOptional;
+        }
+
+        throw new IllegalArgumentException("Id não existe");
+    }
+
     public void delete(Long id) {
         LOGGER.info("Executando delete para Produto de ID: [{}]", id);
 
@@ -234,13 +254,8 @@ public class ProdutoService {
 
     public Date dateGenerator(String dataString) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        Date data = format.parse(dataString);
 
-        return data;
-    }
-
-    public Boolean existsByCodigoProduto (String codigoProduto) {
-        return this.iProdutoRepository.existsByCodigoProduto(codigoProduto);
+        return format.parse(dataString);
     }
 
     public Optional<Produto> findByCodigoProduto(String codigoProduto) {

@@ -42,8 +42,6 @@ public class Produto {
     @CsvBindByPosition(position = 8)
     private Date validade;
 
-    @ManyToMany(mappedBy = "produtos")
-    private Pedido pedido;
 
     public Produto() {
     }

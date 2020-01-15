@@ -1,0 +1,1 @@
+ALTER TABLE seg_pedidos ADD total DECIMAL(10,2) NOT NULL;

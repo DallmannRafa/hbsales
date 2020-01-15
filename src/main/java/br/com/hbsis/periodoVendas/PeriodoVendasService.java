@@ -2,6 +2,7 @@ package br.com.hbsis.periodoVendas;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.linhaDeCategoria.ILinhaDeCategoriaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -81,6 +82,26 @@ public class PeriodoVendasService {
 
     public List<PeriodoVendas> findAll() {
         return this.iPeriodoVendasRepository.findAll();
+    }
+
+    public Optional<PeriodoVendas> findPeriodoVendasOptionalById(Long id) {
+        Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
+
+        if (periodoVendasOptional.isPresent()) {
+            return periodoVendasOptional;
+        }
+
+        throw new IllegalArgumentException("ID não existe");
+    }
+
+    public PeriodoVendas findPeriodoVendasById(Long id) {
+        Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
+
+        if(periodoVendasOptional.isPresent()) {
+            return periodoVendasOptional.get();
+        }
+
+        throw new IllegalArgumentException("Id não existe");
     }
 
     public PeriodoVendasDTO findById(Long id) {

@@ -1,0 +1,1 @@
+ALTER TABLE seg_funcionarios ADD PRIMARY KEY (id);

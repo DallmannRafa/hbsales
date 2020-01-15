@@ -2,5 +2,5 @@ package br.com.hbsis.pedido;
 
 public enum PedidoEnum {
 
-    ATIVO, CANCELADO, RETIRADO;
+    ATIVO, CANCELADO, RETIRADO
 }

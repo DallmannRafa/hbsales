@@ -1,0 +1,1 @@
+ALTER TABLE seg_pedidos ADD UNIQUE (codigo);
