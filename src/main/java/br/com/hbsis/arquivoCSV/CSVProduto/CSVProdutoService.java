@@ -1,5 +1,6 @@
-package br.com.hbsis.arquivoCSV;
+package br.com.hbsis.arquivoCSV.CSVProduto;
 
+import br.com.hbsis.arquivoCSV.CSVUtils;
 import br.com.hbsis.categoriaProdutos.Categoria;
 import br.com.hbsis.categoriaProdutos.CategoriaDTO;
 import br.com.hbsis.categoriaProdutos.CategoriaService;

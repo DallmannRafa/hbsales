@@ -1,6 +1,6 @@
-package br.com.hbsis.arquivoCSV;
+package br.com.hbsis.arquivoCSV.CSVLinhaCategoria;
 
-import br.com.hbsis.linhaDeCategoria.LinhaDeCategoriaService;
+import br.com.hbsis.arquivoCSV.CSVLinhaCategoria.CSVLinhaCategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,12 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 public class CSVLinhaCategoriaRest {
 
     private final CSVLinhaCategoriaService csvLinhaCategoriaService;
-    private final LinhaDeCategoriaService linhaDeCategoriaService;
 
     @Autowired
-    public CSVLinhaCategoriaRest(CSVLinhaCategoriaService csvLinhaCategoriaService, LinhaDeCategoriaService linhaDeCategoriaService) {
+    public CSVLinhaCategoriaRest(CSVLinhaCategoriaService csvLinhaCategoriaService) {
         this.csvLinhaCategoriaService = csvLinhaCategoriaService;
-        this.linhaDeCategoriaService = linhaDeCategoriaService;
+
     }
 
     @GetMapping("/export_linhas_cat")

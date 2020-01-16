@@ -7,6 +7,7 @@ import br.com.hbsis.produto.ProdutoService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -118,5 +119,15 @@ public class ItemService {
         if (StringUtils.isEmpty(String.valueOf(itemDTO.getQuantidade()))) {
             throw new IllegalArgumentException("Quantidade não pode ser nula");
         }
+    }
+
+    public List<Item> findByPedido(Pedido pedido) {
+        List<Item> itens = this.iItemRepository.findByPedido(pedido);
+
+        if (!itens.isEmpty()) {
+            return itens;
+        }
+
+        throw new IllegalArgumentException("Não existem itens por esse pedido");
     }
 }

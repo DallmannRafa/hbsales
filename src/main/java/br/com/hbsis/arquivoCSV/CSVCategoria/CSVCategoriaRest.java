@@ -1,4 +1,4 @@
-package br.com.hbsis.arquivoCSV;
+package br.com.hbsis.arquivoCSV.CSVCategoria;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/categorias/files")
 public class CSVCategoriaRest {
 
-    private final CSVCategoriaService CSVCategoriaService;
+    private final br.com.hbsis.arquivoCSV.CSVCategoria.CSVCategoriaService CSVCategoriaService;
 
     @Autowired
     public CSVCategoriaRest(CSVCategoriaService arquivoService) {

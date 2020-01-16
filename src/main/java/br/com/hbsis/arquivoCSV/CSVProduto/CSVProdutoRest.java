@@ -1,7 +1,6 @@
-package br.com.hbsis.arquivoCSV;
+package br.com.hbsis.arquivoCSV.CSVProduto;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/produtos/files")
 public class CSVProdutoRest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CSVProdutoRest.class);
     private final CSVProdutoService csvProdutoService;
 
     public CSVProdutoRest(CSVProdutoService csvProdutoService) {
