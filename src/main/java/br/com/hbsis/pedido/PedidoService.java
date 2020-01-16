@@ -2,6 +2,8 @@ package br.com.hbsis.pedido;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.funcionario.Funcionario;
+import br.com.hbsis.funcionario.FuncionarioDTO;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.item.Item;
 import br.com.hbsis.item.ItemDTO;
@@ -123,6 +125,25 @@ public class PedidoService {
         throw new IllegalArgumentException("Id não existe");
     }
 
+    public List<PedidoDTO> findPedidosByFuncionario(Long idFuncionario) {
+        Optional<Funcionario> funcionarioOptional = funcionarioService.findByIdOptional(idFuncionario);
+        List<PedidoDTO> pedidosDTO = new ArrayList<>();
+
+        if (funcionarioOptional.isPresent()) {
+            List<Pedido> pedidos = this.iPedidoRepository.findByFuncionario(funcionarioOptional.get());
+
+            for (Pedido pedido : pedidos) {
+                pedidosDTO.add(PedidoDTO.of(pedido));
+            }
+
+            return pedidosDTO;
+
+        }
+
+        throw new IllegalArgumentException("Id não existe");
+
+    }
+
     public void delete(Long id) {
         this.iPedidoRepository.deleteById(id);
     }
@@ -178,6 +199,7 @@ public class PedidoService {
         for (ItemDTO itemDTO : itens) {
             Item item = new Item();
 
+            item.setId(itemDTO.getId());
             item.setProduto(produtoService.findProdutoById(itemDTO.getProduto().getId()));
             item.setQuantidade(itemDTO.getQuantidade());
             item.setPedido(pedido);
@@ -240,7 +262,7 @@ public class PedidoService {
     }
 
     private void statusValidate(String pedidoEnum) {
-        if (!pedidoEnum.equals("ATIVO")) {
+        if (!(pedidoEnum.equals("ATIVO"))) {
             throw new IllegalArgumentException("pedido não pode mais ser alterado pois está cancelado/retirado");
         }
     }

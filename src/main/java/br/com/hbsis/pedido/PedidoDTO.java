@@ -26,7 +26,8 @@ public class PedidoDTO {
     public PedidoDTO() {
     }
 
-    public PedidoDTO(String codigo, PedidoEnum statusPedido, Funcionario funcionario, Fornecedor fornecedor, PeriodoVendas periodoVendas, LocalDate dataCadastro, List<ItemDTO> itens, BigDecimal total) {
+    public PedidoDTO(long id,String codigo, PedidoEnum statusPedido, Funcionario funcionario, Fornecedor fornecedor, PeriodoVendas periodoVendas, LocalDate dataCadastro, List<ItemDTO> itens, BigDecimal total) {
+        this.id = id;
         this.codigo = codigo;
         this.statusPedido = statusPedido;
         this.funcionario = funcionario;
@@ -39,6 +40,7 @@ public class PedidoDTO {
 
     public static PedidoDTO of(Pedido pedido) {
         return new PedidoDTO(
+                pedido.getId(),
                 pedido.getCodigo(),
                 PedidoEnum.valueOf(pedido.getStatusPedido()),
                 pedido.getFuncionario(),

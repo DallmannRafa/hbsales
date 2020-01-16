@@ -1,6 +1,5 @@
 package br.com.hbsis.item;
 
-import br.com.hbsis.pedido.Pedido;
 import br.com.hbsis.produto.Produto;
 
 public class ItemDTO {
@@ -13,7 +12,8 @@ public class ItemDTO {
     public ItemDTO() {
     }
 
-    public ItemDTO(int quantidade, Long pedido, Produto produto) {
+    public ItemDTO(long id, int quantidade, Long pedido, Produto produto) {
+        this.id = id;
         this.quantidade = quantidade;
         this.pedido = pedido;
         this.produto = produto;
@@ -21,6 +21,7 @@ public class ItemDTO {
 
     public static ItemDTO of(Item item) {
         return new ItemDTO(
+                item.getId(),
                 item.getQuantidade(),
                 item.getPedido().getId(),
                 item.getProduto()

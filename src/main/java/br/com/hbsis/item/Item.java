@@ -25,10 +25,8 @@ public class Item {
     public Item() {
     }
 
-    public Item(int quantidade, Pedido pedido, Produto produto) {
-        this.quantidade = quantidade;
-        this.pedido = pedido;
-        this.produto = produto;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getId() {

@@ -3,6 +3,8 @@ package br.com.hbsis.pedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoRest {
@@ -22,6 +24,11 @@ public class PedidoRest {
     @GetMapping("/{id}")
     public PedidoDTO find(@PathVariable("id") Long id) {
         return this.pedidoService.findById(id);
+    }
+
+    @GetMapping("/pedido_por_funcionario/{id}")
+    public List<PedidoDTO> findByFuncionario(@PathVariable("id") Long id) {
+        return this.pedidoService.findPedidosByFuncionario(id);
     }
 
     @PutMapping("/{id}")
