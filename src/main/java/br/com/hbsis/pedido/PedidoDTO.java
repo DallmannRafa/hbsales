@@ -40,7 +40,7 @@ public class PedidoDTO {
     public static PedidoDTO of(Pedido pedido) {
         return new PedidoDTO(
                 pedido.getCodigo(),
-                pedido.getStatusPedido(),
+                PedidoEnum.valueOf(pedido.getStatusPedido()),
                 pedido.getFuncionario(),
                 pedido.getFornecedor(),
                 pedido.getPeriodoVendas(),

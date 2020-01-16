@@ -95,8 +95,6 @@ public class PedidoService {
             pedido.setStatusPedido(this.validateStatus(pedidoDTO.getStatusPedido().toString()));
             pedido.setTotal(pedidoDTO.getTotal());
 
-
-
             pedido = this.iPedidoRepository.save(pedido);
 
             return PedidoDTO.of(pedido);
@@ -202,12 +200,12 @@ public class PedidoService {
 
     }
 
-    private PedidoEnum validateStatus(String status) {
+    private String validateStatus(String status) {
 
         status = status.toUpperCase();
 
         if (status.equals("CANCELADO") || status.equals("ATIVO") || status.equals("RETIRADO")) {
-            return PedidoEnum.valueOf(status);
+            return status;
         }
 
         throw new IllegalArgumentException("Status não válido");
@@ -241,8 +239,8 @@ public class PedidoService {
         return codigoInformado;
     }
 
-    private void statusValidate(PedidoEnum pedidoEnum) {
-        if (!pedidoEnum.toString().equals("ATIVO")) {
+    private void statusValidate(String pedidoEnum) {
+        if (!pedidoEnum.equals("ATIVO")) {
             throw new IllegalArgumentException("pedido não pode mais ser alterado pois está cancelado/retirado");
         }
     }

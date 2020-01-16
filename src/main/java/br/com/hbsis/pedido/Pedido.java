@@ -20,7 +20,7 @@ public class Pedido {
     @Column(name = "codigo")
     private String codigo;
     @Column(name = "status")
-    private PedidoEnum statusPedido;
+    private String statusPedido;
     @Column(name = "data")
     private LocalDate dataCadastro;
     @Column(name = "total")
@@ -62,11 +62,11 @@ public class Pedido {
         this.codigo = codigo;
     }
 
-    public PedidoEnum getStatusPedido() {
+    public String getStatusPedido() {
         return statusPedido;
     }
 
-    public void setStatusPedido(PedidoEnum statusPedido) {
+    public void setStatusPedido(String statusPedido) {
         this.statusPedido = statusPedido;
     }
 
