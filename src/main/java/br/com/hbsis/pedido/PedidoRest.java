@@ -33,8 +33,13 @@ public class PedidoRest {
     }
 
     @PutMapping("/cancelar/{id}")
-    public PedidoDTO update(@PathVariable Long id) {
+    public PedidoDTO cancelar(@PathVariable Long id) {
         return this.pedidoService.cancelaPedido(id);
+    }
+
+    @PutMapping("/retirar/{id}")
+    public PedidoDTO retirar(@PathVariable Long id) {
+        return this.pedidoService.retiraPedido(id);
     }
 
     @PutMapping("/{id}")

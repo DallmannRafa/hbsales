@@ -108,6 +108,21 @@ public class PedidoService {
         throw new IllegalArgumentException("ID não existe");
     }
 
+    public PedidoDTO retiraPedido (Long idPedido) {
+        Optional<Pedido> pedidoOptional = this.iPedidoRepository.findById(idPedido);
+
+            if (pedidoOptional.isPresent() && !pedidoOptional.get().getStatusPedido().equals("CANCELADO")) {
+            Pedido pedido = pedidoOptional.get();
+
+            pedido.setStatusPedido("RETIRADO");
+
+            this.iPedidoRepository.save(pedido);
+            return PedidoDTO.of(pedido);
+        }
+
+        throw new IllegalArgumentException("Não foi possivel retirar o pedido");
+    }
+
     public PedidoDTO cancelaPedido(Long idPedido) {
         Optional<Pedido> pedidoOptional = this.iPedidoRepository.findById(idPedido);
 
