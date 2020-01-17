@@ -58,6 +58,7 @@ public class PedidoDTO {
         for (Item item : itens) {
             ItemDTO itemDTO = new ItemDTO();
 
+            itemDTO.setId(item.getId());
             itemDTO.setPedido(item.getPedido().getId());
             itemDTO.setProduto(item.getProduto());
             itemDTO.setQuantidade(item.getQuantidade());

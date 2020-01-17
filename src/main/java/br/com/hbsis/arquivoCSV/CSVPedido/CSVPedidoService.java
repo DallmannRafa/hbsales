@@ -49,7 +49,9 @@ public class CSVPedidoService {
         List<Item> itens  = new ArrayList<>();
 
         for (Pedido pedido : pedidos) {
-            itens.addAll(this.iItemRepository.findByPedido(pedido));
+            if (!pedido.getStatusPedido().equals("CANCELADO")) {
+                itens.addAll(this.iItemRepository.findByPedido(pedido));
+            }
         }
 
         List<CSVItemModel> itensForCSV = this.populateListForCSV(itens);

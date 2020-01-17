@@ -51,7 +51,7 @@ public class CSVProdutoPorFuncionarioService {
 
         for (Funcionario funcionario : funcionarios) {
             for (Pedido pedido : pedidos) {
-                if (pedido.getFuncionario().getId() == funcionario.getId()) {
+                if ((pedido.getFuncionario().getId() == funcionario.getId()) && (!pedido.getStatusPedido().equals("CANCELADO"))) {
                     this.populateListForCSV(itensForCSV, pedido.getItens(), funcionario);
                 }
             }

@@ -3,7 +3,6 @@ package br.com.hbsis.pedido;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.Funcionario;
-import br.com.hbsis.funcionario.FuncionarioDTO;
 import br.com.hbsis.funcionario.FuncionarioService;
 import br.com.hbsis.item.Item;
 import br.com.hbsis.item.ItemDTO;
@@ -94,7 +93,6 @@ public class PedidoService {
             pedido.setFornecedor(pedidoDTO.getFornecedor());
             pedido.setFuncionario(pedidoDTO.getFuncionario());
             pedido.setCodigo(this.codeGenerator(pedidoDTO.getCodigo()));
-            pedido.setStatusPedido(this.validateStatus(pedidoDTO.getStatusPedido().toString()));
             pedido.setTotal(pedidoDTO.getTotal());
 
             pedido = this.iPedidoRepository.save(pedido);
@@ -103,6 +101,24 @@ public class PedidoService {
         }
 
         throw new IllegalArgumentException("ID não existe");
+    }
+
+    public PedidoDTO cancelaPedido(Long idPedido) {
+        Optional<Pedido> pedidoOptional = this.iPedidoRepository.findById(idPedido);
+
+        if (pedidoOptional.isPresent()
+                && pedidoOptional.get().getStatusPedido().equals("ATIVO")
+                && !pedidoOptional.get().getPeriodoVendas().getDataFimVendas().isBefore(LocalDate.now())) {
+
+            Pedido pedido = pedidoOptional.get();
+
+            pedido.setStatusPedido("CANCELADO");
+
+            this.iPedidoRepository.save(pedido);
+            return PedidoDTO.of(pedido);
+        }
+
+        throw new IllegalArgumentException("Não foi possivel cancelar o pedido");
     }
 
     public PedidoDTO findById(Long id) {
@@ -133,7 +149,9 @@ public class PedidoService {
             List<Pedido> pedidos = this.iPedidoRepository.findByFuncionario(funcionarioOptional.get());
 
             for (Pedido pedido : pedidos) {
-                pedidosDTO.add(PedidoDTO.of(pedido));
+                if (!pedido.getStatusPedido().equals("CANCELADO")) {
+                    pedidosDTO.add(PedidoDTO.of(pedido));
+                }
             }
 
             return pedidosDTO;
@@ -199,7 +217,6 @@ public class PedidoService {
         for (ItemDTO itemDTO : itens) {
             Item item = new Item();
 
-            item.setId(itemDTO.getId());
             item.setProduto(produtoService.findProdutoById(itemDTO.getProduto().getId()));
             item.setQuantidade(itemDTO.getQuantidade());
             item.setPedido(pedido);
@@ -278,8 +295,5 @@ public class PedidoService {
         }
 
     }
-
-
-
 
 }

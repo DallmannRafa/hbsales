@@ -31,6 +31,11 @@ public class PedidoRest {
         return this.pedidoService.findPedidosByFuncionario(id);
     }
 
+    @PutMapping("/cancelar/{id}")
+    public PedidoDTO update(@PathVariable Long id) {
+        return this.pedidoService.cancelaPedido(id);
+    }
+
     @PutMapping("/{id}")
     public PedidoDTO update(@PathVariable Long id, @RequestBody PedidoDTO pedidoDTO) {
         return this.pedidoService.update(pedidoDTO, id);
