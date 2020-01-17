@@ -1,5 +1,6 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.email.EmailSender;
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
 import br.com.hbsis.funcionario.Funcionario;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.mail.MessagingException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,17 +34,18 @@ public class PedidoService {
     private final FornecedorService fornecedorService;
     private final FuncionarioService funcionarioService;
     private final ProdutoService produtoService;
+    private final EmailSender emailSender;
 
-    public PedidoService(IPedidoRepository iPedidoRepository, PeriodoVendasService periodoVendasService, FornecedorService fornecedorService, FuncionarioService funcionarioService, ProdutoService produtoService) {
+    public PedidoService(IPedidoRepository iPedidoRepository, PeriodoVendasService periodoVendasService, FornecedorService fornecedorService, FuncionarioService funcionarioService, ProdutoService produtoService, EmailSender emailSender) {
         this.iPedidoRepository = iPedidoRepository;
         this.periodoVendasService = periodoVendasService;
         this.fornecedorService = fornecedorService;
         this.funcionarioService = funcionarioService;
         this.produtoService = produtoService;
-
+        this.emailSender = emailSender;
     }
 
-    public PedidoDTO save(PedidoDTO pedidoDTO){
+    public PedidoDTO save(PedidoDTO pedidoDTO) throws MessagingException {
 
         pedidoDTO.setFornecedor(fornecedorService.findFornecedorById(pedidoDTO.getFornecedor().getId()));
         pedidoDTO.setPeriodoVendas(periodoVendasService.findPeriodoVendasById(pedidoDTO.getPeriodoVendas().getId()));
@@ -67,6 +70,8 @@ public class PedidoService {
         this.invoiceValidarPedido(pedido);
 
         pedido = this.iPedidoRepository.save(pedido);
+
+        emailSender.enviarEmail(pedido, pedido.getItens());
 
         return PedidoDTO.of(pedido);
     }
@@ -197,9 +202,9 @@ public class PedidoService {
         }
     }
 
-    private void validateItens(List<ItemDTO> itens, Fornecedor fornecedor){
+    private void validateItens(List<ItemDTO> itens, Fornecedor fornecedor) {
 
-        for (ItemDTO itemDTO: itens) {
+        for (ItemDTO itemDTO : itens) {
 
             Long idFornecedorItem = produtoService.findProdutoById(itemDTO.getProduto().getId()).getLinhaDeCategoria().getCategoriaDaLinhaCategoria().getFornecedor().getId();
 
@@ -252,7 +257,7 @@ public class PedidoService {
 
     private void calculaTotal(PedidoDTO pedidoDTO) {
 
-        pedidoDTO.setTotal(new BigDecimal(0 ));
+        pedidoDTO.setTotal(new BigDecimal(0));
 
         for (ItemDTO itemDTO : pedidoDTO.getItens()) {
             Produto produto = produtoService.findProdutoById(itemDTO.getProduto().getId());

@@ -23,10 +23,7 @@ public class PedidoDTO {
     private List<ItemDTO> itens;
     private BigDecimal total;
 
-    public PedidoDTO() {
-    }
-
-    public PedidoDTO(long id,String codigo, PedidoEnum statusPedido, Funcionario funcionario, Fornecedor fornecedor, PeriodoVendas periodoVendas, LocalDate dataCadastro, List<ItemDTO> itens, BigDecimal total) {
+    public PedidoDTO(long id, String codigo, PedidoEnum statusPedido, Funcionario funcionario, Fornecedor fornecedor, PeriodoVendas periodoVendas, LocalDate dataCadastro, List<ItemDTO> itens, BigDecimal total) {
         this.id = id;
         this.codigo = codigo;
         this.statusPedido = statusPedido;
@@ -49,7 +46,7 @@ public class PedidoDTO {
                 pedido.getDataCadastro(),
                 DTOOfItem(pedido.getItens()),
                 pedido.getTotal()
-                );
+        );
     }
 
     private static List<ItemDTO> DTOOfItem(List<Item> itens) {
