@@ -7,7 +7,6 @@ import br.com.hbsis.produto.ProdutoService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,7 +19,6 @@ public class ItemService {
     public ItemService(IItemRepository iItemRepository, PedidoService pedidoService, ProdutoService produtoService) {
         this.iItemRepository = iItemRepository;
         this.pedidoService = pedidoService;
-
         this.produtoService = produtoService;
     }
 
@@ -88,17 +86,7 @@ public class ItemService {
 
     }
 
-    public Item findItemById(Long id) {
-        Optional<Item> itemOptional = this.iItemRepository.findById(id);
-
-        if (itemOptional.isPresent()) {
-            return itemOptional.get();
-        }
-
-        throw new IllegalArgumentException("Id não existe");
-    }
-
-    public void delete (Long id) {
+    public void delete(Long id) {
         this.iItemRepository.deleteById(id);
     }
 
@@ -121,13 +109,5 @@ public class ItemService {
         }
     }
 
-    public List<Item> findByPedido(Pedido pedido) {
-        List<Item> itens = this.iItemRepository.findByPedido(pedido);
 
-        if (!itens.isEmpty()) {
-            return itens;
-        }
-
-        throw new IllegalArgumentException("Não existem itens por esse pedido");
-    }
 }

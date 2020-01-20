@@ -6,7 +6,7 @@ import br.com.hbsis.produto.Produto;
 import javax.persistence.*;
 
 @Entity
-@Table (name = "seg_itens")
+@Table(name = "seg_itens")
 public class Item {
 
     @Id

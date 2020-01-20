@@ -14,9 +14,6 @@ public class FuncionarioDTO {
         this.uuid = uuid;
     }
 
-    public FuncionarioDTO() {
-    }
-
     public static FuncionarioDTO of(Funcionario funcionario) {
         return new FuncionarioDTO(
                 funcionario.getId(),

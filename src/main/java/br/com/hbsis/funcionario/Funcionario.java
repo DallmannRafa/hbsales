@@ -19,12 +19,6 @@ public class Funcionario {
     public Funcionario() {
     }
 
-    public Funcionario(String nome, String email, String uuid) {
-        this.nome = nome;
-        this.email = email;
-        this.uuid = uuid;
-    }
-
     public long getId() {
         return id;
     }

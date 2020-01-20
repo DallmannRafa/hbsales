@@ -118,12 +118,12 @@ public class ProdutoService {
         this.iProdutoRepository.deleteById(id);
     }
 
-    public String[][] stringfyToCsvById (Long id) {
-        String[] header = new String[] {
+    public String[][] stringfyToCsvById(Long id) {
+        String[] header = new String[]{
                 "código_produto", "nome_produto", "preço", "unidade_por_caixa", "peso_unidade", "validade",
                 "codigo_linha_categoria", "nome_linha_categoria", "código_categoria", "nome_categoria",
                 "CNPJ_fornecedor", "razão_social_fornecedor"};
-        String[][] dados = new String [2][12];
+        String[][] dados = new String[2][12];
         dados[0] = header;
 
         Optional<Produto> produtoOptional = this.iProdutoRepository.findById(id);
@@ -132,10 +132,10 @@ public class ProdutoService {
             Produto produto = produtoOptional.get();
 
             String valor = String.valueOf(produto.getPrecoProduto()).replaceAll("[^0-9]", "");
-            valor = "R$" + valor.substring(0,valor.length()-2) + "," + valor.substring(valor.length()-2);
+            valor = "R$" + valor.substring(0, valor.length() - 2) + "," + valor.substring(valor.length() - 2);
 
             String peso = String.valueOf(produto.getPesoUnidade()).replaceAll("[^0-9]", "");
-            peso = peso.substring(0,peso.length()-3) + "," + peso.substring(peso.length()-3) + produto.getUnidadeMedidaPeso();
+            peso = peso.substring(0, peso.length() - 3) + "," + peso.substring(peso.length() - 3) + produto.getUnidadeMedidaPeso();
 
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
             String vencimento = format.format(produto.getValidade());
@@ -161,13 +161,13 @@ public class ProdutoService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public String[][] stringfyAllToCsv () {
-        String[] header = new String[] {
+    public String[][] stringfyAllToCsv() {
+        String[] header = new String[]{
                 "código_produto", "nome_produto", "preço", "unidade_por_caixa", "peso_unidade", "validade",
                 "codigo_linha_categoria", "nome_linha_categoria", "código_categoria", "nome_categoria",
                 "CNPJ_fornecedor", "razão_social_fornecedor"};
         List<Produto> produtos = this.iProdutoRepository.findAll();
-        String[][] dados = new String [produtos.size() + 1][12];
+        String[][] dados = new String[produtos.size() + 1][12];
         dados[0] = header;
 
         int contador = 1;
@@ -175,10 +175,10 @@ public class ProdutoService {
         for (Produto produto : produtos) {
 
             String valor = String.valueOf(produto.getPrecoProduto()).replaceAll("[^0-9]", "");
-            valor = "R$" + valor.substring(0,valor.length()-2) + "," + valor.substring(valor.length()-2);
+            valor = "R$" + valor.substring(0, valor.length() - 2) + "," + valor.substring(valor.length() - 2);
 
             String peso = String.valueOf(produto.getPesoUnidade()).replaceAll("[^0-9]", "");
-            peso = peso.substring(0,peso.length()-3) + "," + peso.substring(peso.length()-3) + produto.getUnidadeMedidaPeso();
+            peso = peso.substring(0, peso.length() - 3) + "," + peso.substring(peso.length() - 3) + produto.getUnidadeMedidaPeso();
 
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
             String vencimento = format.format(produto.getValidade());

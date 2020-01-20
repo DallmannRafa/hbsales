@@ -1,6 +1,9 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categoriaProdutos.Categoria;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "seg_fornecedores")
@@ -11,15 +14,15 @@ public class Fornecedor {
     private Long id;
     @Column(name = "razao_social", nullable = false, length = 100)
     private String razaoSocial;
-    @Column(name = "cnpj", nullable = false, length = 14 )
+    @Column(name = "cnpj", nullable = false, length = 14)
     private String cnpj;
-    @Column(name = "nome_fantasia", nullable = false, length = 100 )
+    @Column(name = "nome_fantasia", nullable = false, length = 100)
     private String nomeFantasia;
-    @Column(name = "endereco", nullable = false, length = 100 )
+    @Column(name = "endereco", nullable = false, length = 100)
     private String endereco;
-    @Column(name = "telefone", nullable = false, length = 12 )
+    @Column(name = "telefone", nullable = false, length = 12)
     private String telefone;
-    @Column(name = "email", nullable = false, length = 100 )
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
     public Long getId() {

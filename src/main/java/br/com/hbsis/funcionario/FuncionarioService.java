@@ -5,7 +5,10 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class FuncionarioService {
@@ -109,8 +112,8 @@ public class FuncionarioService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "f59ff402-1b67-11ea-978f-2e728ce88125");
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<FuncionarioDTO> httpEntity = new HttpEntity<>(funcionarioDTO,headers);
-        ResponseEntity<EmployeeDTO> resultadoEmployee = restTemplate.exchange("http://10.2.54.25:9999/api/employees",  HttpMethod.POST, httpEntity, EmployeeDTO.class);
+        HttpEntity<FuncionarioDTO> httpEntity = new HttpEntity<>(funcionarioDTO, headers);
+        ResponseEntity<EmployeeDTO> resultadoEmployee = restTemplate.exchange("http://10.2.54.25:9999/api/employees", HttpMethod.POST, httpEntity, EmployeeDTO.class);
         funcionarioDTO.setUuid(Objects.requireNonNull(resultadoEmployee.getBody()).getEmployeeUuid());
     }
 

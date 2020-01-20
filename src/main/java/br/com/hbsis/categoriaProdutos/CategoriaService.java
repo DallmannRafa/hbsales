@@ -1,6 +1,8 @@
 package br.com.hbsis.categoriaProdutos;
 
+import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
+import br.com.hbsis.fornecedor.IFornecedorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,43 +15,51 @@ public class CategoriaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriaService.class);
 
     private final ICategoriaRepository iCategoriaRepository;
-    private final FornecedorService fornecedorService;
+    private final IFornecedorRepository iFornecedorRepository;
 
-    public CategoriaService(ICategoriaRepository iCategoriaRepository, FornecedorService fornecedorService) {
+    public CategoriaService(ICategoriaRepository iCategoriaRepository, IFornecedorRepository iFornecedorRepository) {
         this.iCategoriaRepository = iCategoriaRepository;
-        this.fornecedorService = fornecedorService;
+        this.iFornecedorRepository = iFornecedorRepository;
     }
 
 
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
 
-        categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
+        Optional<Fornecedor> fornecedorOptional = iFornecedorRepository.findById(categoriaDTO.getFornecedor().getId());
 
-        LOGGER.info("Salvando categoria");
-        LOGGER.debug("Categoria: {}", categoriaDTO);
-        LOGGER.debug("Fornecedor: {}", categoriaDTO.getFornecedor().getNomeFantasia());
+        if (fornecedorOptional.isPresent()) {
+            categoriaDTO.setFornecedor(fornecedorOptional.get());
 
-        String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
-        String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
+            LOGGER.info("Salvando categoria");
+            LOGGER.debug("Categoria: {}", categoriaDTO);
+            LOGGER.debug("Fornecedor: {}", categoriaDTO.getFornecedor().getNomeFantasia());
 
-        Categoria categoria = new Categoria();
+            String codigoInformadoPeloUsuario = categoriaDTO.getCodCategoria();
+            String CNPJFornecedor = categoriaDTO.getFornecedor().getCnpj();
 
-        categoria.setCodigoCategoria(this.codeGenerator(CNPJFornecedor, codigoInformadoPeloUsuario));
-        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
-        categoria.setFornecedor(categoriaDTO.getFornecedor());
+            Categoria categoria = new Categoria();
+
+            categoria.setCodigoCategoria(this.codeGenerator(CNPJFornecedor, codigoInformadoPeloUsuario));
+            categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
+            categoria.setFornecedor(categoriaDTO.getFornecedor());
 
 
-        categoria = this.iCategoriaRepository.save(categoria);
-        return CategoriaDTO.of(categoria);
+            categoria = this.iCategoriaRepository.save(categoria);
+            return CategoriaDTO.of(categoria);
+
+        }
+
+        throw new IllegalArgumentException("Fornecedor informado não existe");
 
     }
 
     public CategoriaDTO update(CategoriaDTO categoriaDTO, Long id) {
         Optional<Categoria> categoriaExistenteOptional = this.iCategoriaRepository.findById(id);
+        Optional<Fornecedor> fornecedorOptional = iFornecedorRepository.findById(categoriaDTO.getFornecedor().getId());
 
-        if (categoriaExistenteOptional.isPresent()) {
+        if (categoriaExistenteOptional.isPresent() && fornecedorOptional.isPresent()) {
             Categoria categoriaExistente = categoriaExistenteOptional.get();
-            categoriaDTO.setFornecedor(fornecedorService.findFornecedorById((categoriaDTO.getFornecedor().getId())));
+            categoriaDTO.setFornecedor(fornecedorOptional.get());
 
             LOGGER.info("Atualizando categoria... id: [{}]", categoriaExistente.getId());
             LOGGER.debug("Payload: {}", categoriaDTO);
@@ -87,20 +97,20 @@ public class CategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public Optional<Categoria> findByCodigoCategoriaOptional(String codigoCategoria){
+    public Optional<Categoria> findByCodigoCategoriaOptional(String codigoCategoria) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(codigoCategoria);
 
-        if(categoriaOptional.isPresent()){
+        if (categoriaOptional.isPresent()) {
             return categoriaOptional;
         }
 
         throw new IllegalArgumentException(String.format("Código %s não existe", codigoCategoria));
     }
 
-    public Categoria findByCodigoCategoria(String codigoCategoria){
+    public Categoria findByCodigoCategoria(String codigoCategoria) {
         Optional<Categoria> categoriaOptional = this.iCategoriaRepository.findByCodigoCategoria(codigoCategoria);
 
-        if(categoriaOptional.isPresent()){
+        if (categoriaOptional.isPresent()) {
             return categoriaOptional.get();
         }
 
@@ -115,6 +125,12 @@ public class CategoriaService {
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public List<Categoria> findByFornecedor(Fornecedor fornecedor) {
+
+        return this.iCategoriaRepository.findByFornecedor(fornecedor);
+
     }
 
     public void delete(Long id) {
@@ -174,7 +190,7 @@ public class CategoriaService {
         return atributos;
     }
 
-    public String codeGenerator (String cnpjFornecedor, String codigoInformado) {
+    public String codeGenerator(String cnpjFornecedor, String codigoInformado) {
 
         codigoInformado = codigoInformado.replaceAll("[^0-9]", "");
         cnpjFornecedor = cnpjFornecedor.replaceAll("[^0-9]", "");
@@ -188,10 +204,6 @@ public class CategoriaService {
         }
 
         return "CAT" + cnpjFornecedor.substring(10) + codigoInformado;
-    }
-
-    public Boolean existsByCodigoCategoria(String codigoCategoria) {
-        return this.iCategoriaRepository.existsByCodigoCategoria(codigoCategoria);
     }
 
 

@@ -1,5 +1,8 @@
 package br.com.hbsis.fornecedor;
 
+import br.com.hbsis.categoriaProdutos.Categoria;
+import br.com.hbsis.categoriaProdutos.CategoriaDTO;
+import br.com.hbsis.categoriaProdutos.CategoriaService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +17,12 @@ public class FornecedorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FornecedorService.class);
 
     private final IFornecedorRepository iFornecedorRepository;
+    private final CategoriaService categoriaService;
 
-    public FornecedorService(IFornecedorRepository iFornecedorRepository) {
+    public FornecedorService(IFornecedorRepository iFornecedorRepository, CategoriaService categoriaService) {
         this.iFornecedorRepository = iFornecedorRepository;
+
+        this.categoriaService = categoriaService;
     }
 
     public FornecedorDTO save(FornecedorDTO fornecedorDTO) {
@@ -67,6 +73,8 @@ public class FornecedorService {
 
             fornecedorExistente = this.iFornecedorRepository.save(fornecedorExistente);
 
+            this.atualizaCategoria(fornecedorExistente);
+
             return FornecedorDTO.of(fornecedorExistente);
         }
 
@@ -111,7 +119,7 @@ public class FornecedorService {
             throw new IllegalArgumentException("Telefone Social não deve ser nula/vazia");
         }
 
-        if ((fornecedorDTO.getTelefone().length() >= 13) && (fornecedorDTO.getTelefone().length() <= 14)) {
+        if (!((fornecedorDTO.getTelefone().length() >= 13) && (fornecedorDTO.getTelefone().length() <= 14))) {
             throw new IllegalArgumentException("telefone deve conter entre 13 e 14 números");
         }
 
@@ -164,6 +172,16 @@ public class FornecedorService {
         }
 
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
+    }
+
+    public void atualizaCategoria(Fornecedor fornecedor) {
+        List<Categoria> categorias = categoriaService.findByFornecedor(fornecedor);
+
+        for (Categoria categoria : categorias) {
+            CategoriaDTO categoriaDTO = CategoriaDTO.of(categoria);
+            categoriaDTO.setFornecedor(fornecedor);
+            categoriaService.update(categoriaDTO, categoria.getId());
+        }
     }
 
 

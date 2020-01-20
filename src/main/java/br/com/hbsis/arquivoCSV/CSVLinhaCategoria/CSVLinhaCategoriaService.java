@@ -28,32 +28,32 @@ public class CSVLinhaCategoriaService {
     private final CategoriaService categoriaService;
     private final CSVUtils csvUtils;
 
-     public CSVLinhaCategoriaService(ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository, LinhaDeCategoriaService linhaDeCategoriaService, CategoriaService categoriaService, CSVUtils csvUtils) {
+    public CSVLinhaCategoriaService(ILinhaDeCategoriaRepository iLinhaDeCategoriaRepository, LinhaDeCategoriaService linhaDeCategoriaService, CategoriaService categoriaService, CSVUtils csvUtils) {
         this.iLinhaDeCategoriaRepository = iLinhaDeCategoriaRepository;
         this.linhaDeCategoriaService = linhaDeCategoriaService;
         this.categoriaService = categoriaService;
         this.csvUtils = csvUtils;
     }
 
-    public void manyToCSV (HttpServletResponse response) throws IOException {
+    public void manyToCSV(HttpServletResponse response) throws IOException {
         String[][] dados = this.linhaDeCategoriaService.stringFyToCSVAll();
 
         ICSVWriter writer = csvUtils.writerBuilder("linhasdecategoria.csv", response);
 
-        for (String[] a: dados) {
+        for (String[] a : dados) {
             writer.writeNext(a);
 
         }
 
     }
 
-    public void oneToCSV (HttpServletResponse response, Long id) throws IOException {
+    public void oneToCSV(HttpServletResponse response, Long id) throws IOException {
 
         String[][] dados = linhaDeCategoriaService.stringFyToCSVById(id);
 
         ICSVWriter writer = csvUtils.writerBuilder("linhadecategoria.csv", response);
 
-        for (String[] a: dados) {
+        for (String[] a : dados) {
             writer.writeNext(a);
 
         }
@@ -64,7 +64,7 @@ public class CSVLinhaCategoriaService {
         String linhaArquivo;
         String quebraLinha = ";";
 
-        try(BufferedReader csvReader = new BufferedReader (new InputStreamReader(file.getInputStream()))){
+        try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
 
             linhaArquivo = csvReader.readLine();
             while ((linhaArquivo = csvReader.readLine()) != null) {
@@ -93,8 +93,7 @@ public class CSVLinhaCategoriaService {
 
             }
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOGGER.info("Erro ao ler o arquivo .CSV", e);
         }
 

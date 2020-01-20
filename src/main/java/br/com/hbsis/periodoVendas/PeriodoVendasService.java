@@ -2,7 +2,6 @@ package br.com.hbsis.periodoVendas;
 
 import br.com.hbsis.fornecedor.Fornecedor;
 import br.com.hbsis.fornecedor.FornecedorService;
-import br.com.hbsis.linhaDeCategoria.ILinhaDeCategoriaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +28,7 @@ public class PeriodoVendasService {
         LocalDate dataInicioVendas = periodoVendasDTO.getDataInicioVendas();
         LocalDate dataFimVendas = periodoVendasDTO.getDataFimVendas();
 
-        this.validateOrderOfDates(dataInicioVendas,dataFimVendas);
+        this.validateOrderOfDates(dataInicioVendas, dataFimVendas);
         this.validatePeriodBeforeToday(dataInicioVendas);
         this.validateConflictingPeriods(dataInicioVendas, dataFimVendas, periodoVendasDTO.getFornecedor());
 
@@ -56,7 +55,7 @@ public class PeriodoVendasService {
             LocalDate dataFimVendas = periodoVendasDTO.getDataFimVendas();
             LocalDate dateOfToday = LocalDate.now();
 
-            this.validateOrderOfDates(dataInicioVendas,dataFimVendas);
+            this.validateOrderOfDates(dataInicioVendas, dataFimVendas);
             this.validateEndValidity(dataFimVendas);
             this.validateConflictingPeriods(dataInicioVendas, dataFimVendas, periodoVendasDTO.getFornecedor());
 
@@ -97,7 +96,7 @@ public class PeriodoVendasService {
     public PeriodoVendas findPeriodoVendasById(Long id) {
         Optional<PeriodoVendas> periodoVendasOptional = this.iPeriodoVendasRepository.findById(id);
 
-        if(periodoVendasOptional.isPresent()) {
+        if (periodoVendasOptional.isPresent()) {
             return periodoVendasOptional.get();
         }
 
@@ -118,7 +117,7 @@ public class PeriodoVendasService {
         this.iPeriodoVendasRepository.deleteById(id);
     }
 
-    private void validateOrderOfDates(LocalDate dataInicial, LocalDate dataFinal){
+    private void validateOrderOfDates(LocalDate dataInicial, LocalDate dataFinal) {
 
         if (dataInicial.isAfter(dataFinal)) {
             throw new IllegalArgumentException("Ordem das datas incorreto!");
@@ -138,7 +137,7 @@ public class PeriodoVendasService {
 
         LocalDate dateOfToday = LocalDate.now();
 
-        if (dataFinal.isBefore(dateOfToday)){
+        if (dataFinal.isBefore(dateOfToday)) {
             throw new IllegalArgumentException("Periodo já possui sua data de vigência expirado!");
         }
     }
@@ -153,7 +152,7 @@ public class PeriodoVendasService {
         for (int i = pagesOfRequest; i != 0; i--) {
             Page<PeriodoVendas> periodosVendas = iPeriodoVendasRepository.findByFornecedor(fornecedor, paging);
 
-            for (PeriodoVendas periodo: periodosVendas) {
+            for (PeriodoVendas periodo : periodosVendas) {
                 LocalDate initialExistent = periodo.getDataInicioVendas();
                 LocalDate finalExistent = periodo.getDataFimVendas();
 
@@ -162,7 +161,7 @@ public class PeriodoVendasService {
                 }
             }
             page++;
-            paging =PageRequest.of(page, itemsByPage);
+            paging = PageRequest.of(page, itemsByPage);
         }
     }
 

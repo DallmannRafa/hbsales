@@ -1,9 +1,12 @@
 package br.com.hbsis.pedido;
 
+import br.com.hbsis.arquivoCSV.CSVPedido.CSVPedidoService;
+import br.com.hbsis.arquivoCSV.CSVProdutoPorFuncionario.CSVProdutoPorFuncionarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -11,10 +14,14 @@ import java.util.List;
 public class PedidoRest {
 
     private final PedidoService pedidoService;
+    private final CSVProdutoPorFuncionarioService csvProdutoPorFuncionarioService;
+    private final CSVPedidoService csvPedidoService;
 
     @Autowired
-    public PedidoRest(PedidoService pedidoService) {
+    public PedidoRest(PedidoService pedidoService, CSVProdutoPorFuncionarioService csvProdutoPorFuncionarioService, CSVPedidoService csvPedidoService) {
         this.pedidoService = pedidoService;
+        this.csvProdutoPorFuncionarioService = csvProdutoPorFuncionarioService;
+        this.csvPedidoService = csvPedidoService;
     }
 
     @PostMapping
@@ -52,5 +59,14 @@ public class PedidoRest {
         this.pedidoService.delete(id);
     }
 
+    @GetMapping("/files/export_produtos_por_funcionario/{idFornecedor}")
+    public void exportProdutoPorFuncionario(HttpServletResponse response, @PathVariable Long idFornecedor) throws Exception {
+        this.csvProdutoPorFuncionarioService.exportToCSV(response, idFornecedor);
+    }
+
+    @GetMapping("/files/export_pedidos_por_periodo/{idPeriodo}")
+    public void exporPedidosPorPeriodo(HttpServletResponse response, @PathVariable Long idPeriodo) throws Exception {
+        this.csvPedidoService.exportToCSVByPeriodo(response, idPeriodo);
+    }
 
 }
