@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CSVProdutoPorFuncionarioService {
@@ -40,7 +41,7 @@ public class CSVProdutoPorFuncionarioService {
     }
 
     private String[][] stringfyToCSVByFuncionario(Long idFornecedor) {
-        String[] header = new String[] {"nome_funcionario", "nome_produto", "quantidade", "fornecedor"};
+        String[] header = new String[]{"nome_funcionario", "nome_produto", "quantidade", "fornecedor"};
 
         Fornecedor fornecedor = this.fornecedorService.findFornecedorById(idFornecedor);
         List<Pedido> pedidos = this.findByFornecedor(fornecedor);
@@ -64,7 +65,7 @@ public class CSVProdutoPorFuncionarioService {
 
         int contador = 1;
 
-        for (CSVProdutoPorFuncionarioModel item :itensForCSV) {
+        for (CSVProdutoPorFuncionarioModel item : itensForCSV) {
             dados[contador][0] = item.getNomeFuncionario();
             dados[contador][1] = item.getProduto().getLinhaDeCategoria().getNomeLinhaCategoria() + " " + item.getProduto().getNomeProduto();
             dados[contador][2] = String.valueOf(item.getQuantidade());
@@ -90,7 +91,7 @@ public class CSVProdutoPorFuncionarioService {
                         item1.setQuantidade(item1.getQuantidade() + item.getQuantidade());
                         break;
 
-                    } else if ((itensForCSV.indexOf(item1) + 1) == itensForCSV.size()){
+                    } else if ((itensForCSV.indexOf(item1) + 1) == itensForCSV.size()) {
                         itensForCSV.add(new CSVProdutoPorFuncionarioModel(item.getQuantidade(), item.getProduto(), funcionario.getNome()));
                         break;
                     }
@@ -104,7 +105,7 @@ public class CSVProdutoPorFuncionarioService {
 
         for (Pedido pedido : pedidos) {
             boolean duplicado = false;
-            for(Funcionario funcionario : funcionarios) {
+            for (Funcionario funcionario : funcionarios) {
                 if (pedido.getFuncionario().getId() == funcionario.getId()) {
                     duplicado = true;
                     break;

@@ -168,7 +168,7 @@ public class CSVProdutoService {
 
                         String codigoCategoria = categoriaService.codeGenerator(fornecedorOptional.get().getCnpj(), valores[9]);
                         Optional<Categoria> categoriaOptional = categoriaService.findByCodigoCategoriaOptional(codigoCategoria);
-                        Categoria categoria ;
+                        Categoria categoria;
 
                         Long idFornecedorCategoriaInformada = 0L;
 

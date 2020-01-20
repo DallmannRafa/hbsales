@@ -50,7 +50,7 @@ public class LinhaDeCategoriaService {
 
         LOGGER.info("Retornando resultado da pesquisa pelo ID:" + id);
 
-        Optional<LinhaDeCategoria> linhaDeCategoriaOptional= this.iLinhaDeCategoriaRepository.findById(id);
+        Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
 
         if (linhaDeCategoriaOptional.isPresent()) {
             return LinhaDeCategoriaDTO.of(linhaDeCategoriaOptional.get());
@@ -113,15 +113,13 @@ public class LinhaDeCategoriaService {
 
     public void delete(Long id) {
 
-        LOGGER.info("Deletando Linha de Categoria com ID:", id);
-
         this.iLinhaDeCategoriaRepository.deleteById(id);
     }
 
     public String[][] stringFyToCSVAll() {
         List<LinhaDeCategoria> linhasDeCategoria = this.iLinhaDeCategoriaRepository.findAll();
         String[] header = {"codigo", "nome", "codigo_categoria", "nome_categoria"};
-        String[][] atributos = new String [linhasDeCategoria.size() + 1] [4];
+        String[][] atributos = new String[linhasDeCategoria.size() + 1][4];
         int contador = 1;
 
         atributos[0] = header;
@@ -142,11 +140,11 @@ public class LinhaDeCategoriaService {
         return atributos;
     }
 
-    public String[][] stringFyToCSVById (Long id) {
+    public String[][] stringFyToCSVById(Long id) {
         String[] header = {"codigo", "nome", "codigo_categoria", "nome_categoria"};
         String[][] dados = new String[2][4];
 
-        dados [0] = header;
+        dados[0] = header;
 
         Optional<LinhaDeCategoria> linhaDeCategoriaOptional = this.iLinhaDeCategoriaRepository.findById(id);
 
@@ -163,7 +161,7 @@ public class LinhaDeCategoriaService {
         throw new IllegalArgumentException(String.format("ID %s não existe", id));
     }
 
-    public String codeGenerator (String codigoInformado) {
+    public String codeGenerator(String codigoInformado) {
 
         int codigoLength = codigoInformado.length();
 
@@ -171,7 +169,7 @@ public class LinhaDeCategoriaService {
             codigoInformado = codigoInformado.substring(codigoLength - 10);
         } else {
             while (codigoInformado.length() < 10)
-            codigoInformado = "0" + codigoInformado;
+                codigoInformado = "0" + codigoInformado;
         }
 
         codigoInformado = codigoInformado.toUpperCase();
@@ -179,7 +177,4 @@ public class LinhaDeCategoriaService {
         return codigoInformado;
     }
 
-    public Boolean existsByCodigoLinhaCategoria (String codigoLinhaCategoria) {
-        return this.iLinhaDeCategoriaRepository.existsByCodigoLinhaCategoria(codigoLinhaCategoria);
-    }
 }

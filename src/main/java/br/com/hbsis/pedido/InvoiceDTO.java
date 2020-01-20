@@ -12,9 +12,6 @@ public class InvoiceDTO {
     private List<ItemInvoiceDTO> invoiceItemDTOSet;
     private BigDecimal totalValue;
 
-    public InvoiceDTO() {
-    }
-
     public InvoiceDTO(String cnpjFornecedor, String employeeUuid, List<ItemInvoiceDTO> invoiceItemDTOSet, BigDecimal totalValue) {
         this.cnpjFornecedor = cnpjFornecedor;
         this.employeeUuid = employeeUuid;

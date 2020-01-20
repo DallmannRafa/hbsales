@@ -42,11 +42,11 @@ public class CSVPedidoService {
     }
 
     private String[][] stringfyToCSVByPeriodo(Long idPeriodo) {
-        String[] header = new String[] {"nome_produto", "quantidade", "fornecedor"};
+        String[] header = new String[]{"nome_produto", "quantidade", "fornecedor"};
 
         PeriodoVendas periodoVendas = periodoVendasService.findPeriodoVendasById(idPeriodo);
         List<Pedido> pedidos = this.findByPeriodoVendas(periodoVendas);
-        List<Item> itens  = new ArrayList<>();
+        List<Item> itens = new ArrayList<>();
 
         for (Pedido pedido : pedidos) {
             if (!pedido.getStatusPedido().equals("CANCELADO")) {
@@ -56,13 +56,13 @@ public class CSVPedidoService {
 
         List<CSVItemModel> itensForCSV = this.populateListForCSV(itens);
 
-        String[][] dados = new String [itensForCSV.size() + 1][3];
+        String[][] dados = new String[itensForCSV.size() + 1][3];
         dados[0] = header;
         int contador = 1;
 
         String cnpj = periodoVendas.getFornecedor().getCnpj();
 
-        for (CSVItemModel item :itensForCSV) {
+        for (CSVItemModel item : itensForCSV) {
             dados[contador][0] = item.getProduto().getLinhaDeCategoria().getNomeLinhaCategoria() + " " + item.getProduto().getNomeProduto();
             dados[contador][1] = String.valueOf(item.getQuantidade());
             dados[contador][2] = periodoVendas.getFornecedor().getRazaoSocial() + " - "
@@ -99,7 +99,7 @@ public class CSVPedidoService {
                         item1.setQuantidade(item1.getQuantidade() + item.getQuantidade());
                         break;
 
-                    } else if ((itensForCSV.indexOf(item1) + 1) == itensForCSV.size()){
+                    } else if ((itensForCSV.indexOf(item1) + 1) == itensForCSV.size()) {
                         itensForCSV.add(new CSVItemModel(item.getQuantidade(), item.getProduto()));
                         break;
                     }

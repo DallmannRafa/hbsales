@@ -1,7 +1,6 @@
 package br.com.hbsis.produto;
 
 import br.com.hbsis.linhaDeCategoria.LinhaDeCategoria;
-import br.com.hbsis.pedido.Pedido;
 import com.opencsv.bean.CsvBindByPosition;
 
 import javax.persistence.*;
@@ -14,32 +13,23 @@ public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @CsvBindByPosition(position = 0)
     private Long id;
     @Column(name = "codigo_produto", length = 10)
-    @CsvBindByPosition(position = 1)
     private String codigoProduto;
     @Column(name = "nome_produto", length = 100)
-    @CsvBindByPosition(position = 2)
     private String nomeProduto;
     @Column(name = "preco_produto")
-    @CsvBindByPosition(position = 3)
     private BigDecimal precoProduto;
     @ManyToOne
     @JoinColumn(name = "id_linha_categoria", referencedColumnName = "id")
-    @CsvBindByPosition(position = 4)
     private LinhaDeCategoria linhaDeCategoria;
     @Column(name = "unidade_por_caixa", length = 10)
-    @CsvBindByPosition(position = 5)
     private int unidadePorCaixa;
     @Column(name = "peso_unidade")
-    @CsvBindByPosition(position = 6)
     private BigDecimal pesoUnidade;
     @Column(name = "unidade_medida_peso", length = 2)
-    @CsvBindByPosition(position = 7)
     private String unidadeMedidaPeso;
     @Column(name = "validade")
-    @CsvBindByPosition(position = 8)
     private Date validade;
 
 

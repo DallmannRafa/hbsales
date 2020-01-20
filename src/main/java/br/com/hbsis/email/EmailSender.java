@@ -3,7 +3,6 @@ package br.com.hbsis.email;
 import br.com.hbsis.item.Item;
 import br.com.hbsis.pedido.Pedido;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,16 +35,16 @@ public class EmailSender {
         Session session = setSession(props);
 
         MimeMessage message = new MimeMessage(session);
-        message.setSubject("O pedido #" + pedido.getCodigo() +" foi aprovado ");
-        message.setContent(pedido.getFuncionario().getNome()  + "\r\n"
+        message.setSubject("O pedido #" + pedido.getCodigo() + " foi aprovado ");
+        message.setContent(pedido.getFuncionario().getNome() + "\r\n"
                 + ", o seu pediodo #<b>" + pedido.getCodigo() + "</b>\r\n" +
-                "Do fornecedor: "+ pedido.getPeriodoVendas().getFornecedor().getRazaoSocial() + " foi aprovado" + "\r\n" +
+                "Do fornecedor: " + pedido.getPeriodoVendas().getFornecedor().getRazaoSocial() + " foi aprovado" + "\r\n" +
                 "Com os seguintes itens: <p>" + "\r\n" +
-                listaItens(items)+
+                listaItens(items) +
                 "A data de retirado do seu pedido é <b>" + pedido.getPeriodoVendas().getDataRetiradaPedido().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "</b>, \r\n" +
-                "O endereço para a retirada é <b>" + pedido.getPeriodoVendas().getFornecedor().getEndereco() + "</b>\r\n" +", para mais informações entre em contato pelo Telefone: <b>" +
+                "O endereço para a retirada é <b>" + pedido.getPeriodoVendas().getFornecedor().getEndereco() + "</b>\r\n" + ", para mais informações entre em contato pelo Telefone: <b>" +
                 pedido.getPeriodoVendas().getFornecedor().getTelefone() + "</b>, ou pelo E-mail: " + pedido.getPeriodoVendas().getFornecedor().getEmail(), "text/html");
-        message.setRecipients(Message.RecipientType.TO,pedido.getFuncionario().getEmail());
+        message.setRecipients(Message.RecipientType.TO, pedido.getFuncionario().getEmail());
         message.setFrom("informacoespedido@gmail.com");
 
         message.saveChanges();
@@ -65,7 +63,7 @@ public class EmailSender {
     }
 
     private static Session setSession(Properties props) {
-                return Session.getInstance(props,
+        return Session.getInstance(props,
                 new javax.mail.Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {

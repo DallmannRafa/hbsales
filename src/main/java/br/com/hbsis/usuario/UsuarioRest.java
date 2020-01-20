@@ -11,43 +11,43 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioRest {
-	private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioRest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioRest.class);
 
-	private final UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
-	@Autowired
-	public UsuarioRest(UsuarioService usuarioService) {
-		this.usuarioService = usuarioService;
-	}
+    @Autowired
+    public UsuarioRest(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
-	@PostMapping
-	public UsuarioDTO save(@RequestBody UsuarioDTO usuarioDTO) {
-		LOGGER.info("Recebendo solicitação de persistência de usuário...");
-		LOGGER.debug("Payaload: {}", usuarioDTO);
+    @PostMapping
+    public UsuarioDTO save(@RequestBody UsuarioDTO usuarioDTO) {
+        LOGGER.info("Recebendo solicitação de persistência de usuário...");
+        LOGGER.debug("Payaload: {}", usuarioDTO);
 
-		return this.usuarioService.save(usuarioDTO);
-	}
+        return this.usuarioService.save(usuarioDTO);
+    }
 
-	@GetMapping("/{id}")
-	public UsuarioDTO find(@PathVariable("id") Long id) {
+    @GetMapping("/{id}")
+    public UsuarioDTO find(@PathVariable("id") Long id) {
 
-		LOGGER.info("Recebendo find by ID... id: [{}]", id);
+        LOGGER.info("Recebendo find by ID... id: [{}]", id);
 
-		return this.usuarioService.findById(id);
-	}
+        return this.usuarioService.findById(id);
+    }
 
-	@PutMapping("/{id}")
-	public UsuarioDTO udpate(@PathVariable("id") Long id, @RequestBody UsuarioDTO usuarioDTO) {
-		LOGGER.info("Recebendo Update para Usuário de ID: {}", id);
-		LOGGER.debug("Payload: {}", usuarioDTO);
+    @PutMapping("/{id}")
+    public UsuarioDTO udpate(@PathVariable("id") Long id, @RequestBody UsuarioDTO usuarioDTO) {
+        LOGGER.info("Recebendo Update para Usuário de ID: {}", id);
+        LOGGER.debug("Payload: {}", usuarioDTO);
 
-		return this.usuarioService.update(usuarioDTO, id);
-	}
+        return this.usuarioService.update(usuarioDTO, id);
+    }
 
-	@DeleteMapping("/{id}")
-	public void delete(@PathVariable("id") Long id) {
-		LOGGER.info("Recebendo Delete para Usuário de ID: {}", id);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        LOGGER.info("Recebendo Delete para Usuário de ID: {}", id);
 
-		this.usuarioService.delete(id);
-	}
+        this.usuarioService.delete(id);
+    }
 }

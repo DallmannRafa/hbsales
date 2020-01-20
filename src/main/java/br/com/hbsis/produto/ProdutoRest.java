@@ -1,10 +1,13 @@
 package br.com.hbsis.produto;
 
+import br.com.hbsis.arquivoCSV.CSVProduto.CSVProdutoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -14,10 +17,12 @@ public class ProdutoRest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProdutoRest.class);
 
     private final ProdutoService produtoService;
+    private final CSVProdutoService csvProdutoService;
 
     @Autowired
-    public ProdutoRest(ProdutoService produtoService) {
+    public ProdutoRest(ProdutoService produtoService, CSVProdutoService csvProdutoService) {
         this.produtoService = produtoService;
+        this.csvProdutoService = csvProdutoService;
     }
 
     @PostMapping
@@ -53,5 +58,25 @@ public class ProdutoRest {
         LOGGER.info("Recebendo Delete para Categoria de ID: {}", id);
 
         this.produtoService.delete(id);
+    }
+
+    @GetMapping("/files/export_produtos")
+    public void exportCategorias(HttpServletResponse response) throws Exception {
+        csvProdutoService.manyToCSV(response);
+    }
+
+    @GetMapping("/files/export_produto/{id}")
+    public void exportCategoria(@PathVariable("id") Long id, HttpServletResponse response) throws Exception {
+        this.csvProdutoService.oneToCSV(response, id);
+    }
+
+    @PostMapping(value = "/files/upload", consumes = "multipart/form-data")
+    public void uploadMultipart(@RequestParam("file") MultipartFile file) {
+        this.csvProdutoService.readCSV(file);
+    }
+
+    @PostMapping(value = "/files/upload/{id}", consumes = "multipart/form-data")
+    public void uploadMultipart(@RequestParam("file") MultipartFile file, @PathVariable("id") Long id) {
+        this.csvProdutoService.readProdutoPorFornecedor(file, id);
     }
 }
